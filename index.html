@@ -79,8 +79,8 @@
             /* 오른쪽 날개 (큼) */ 40px -14px 0 var(--main-color), 44px -14px 0 var(--main-color), 48px -10px 0 var(--main-color), 52px -10px 0 var(--main-color), 56px -10px 0 var(--main-color), 60px -10px 0 var(--main-color), 48px -6px 0 var(--main-color), 52px -6px 0 var(--main-color), 56px -6px 0 var(--main-color),
             /* 다리 */ 26px 0px 0 var(--main-color), 30px 0px 0 var(--main-color); }
 
-        /* 메테오 */
-        .meteor { position: absolute; width: 4px; height: 4px; background: #FF6347; z-index: 6; pointer-events: none; }
+        /* 메테오 - 무시됨 */
+        .meteor { position: absolute; width: 4px; height: 4px; background: #FF6347; z-index: 3; pointer-events: none; }
 
         /* 다양한 아기 공룡 */
         .baby-dino { position: absolute; width: 4px; height: 4px; background: transparent; z-index: 4; transform: scale(0.6); transform-origin: bottom left; }
@@ -489,38 +489,22 @@
             }
         });
 
-        // --- 메테오 이동 (충돌 검사 없음 - 메테오는 무적) ---
+        // --- 메테오 이동 (왼쪽에서 오른쪽으로, 충돌 검사 NO) ---
         for (let i = meteors.length - 1; i >= 0; i--) {
             let m = meteors[i];
-            
-            // 브라키오 위치
-            const dinoX = 40 + 22;
-            const targetX = dinoX;
-            const targetY = 75;
-            
-            // 목표 방향으로 이동
-            const dx = targetX - m.x;
-            const dy = targetY - m.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            
-            if (dist > 5) {
-                const speed = Math.min(dist / 30, 8);
-                m.x += (dx / dist) * speed;
-                m.y += (dy / dist) * speed;
-            } else {
-                m.x = targetX;
-                m.y = targetY;
-            }
+            m.x += 6; // 오른쪽으로 이동
+            m.y -= 2; // 위로 이동 (하늘로)
             
             // 크기 점점 커짐
-            const maxScale = 8;
-            const scale = 1 + (maxScale - 1) * (1 - Math.max(0, Math.min(dist / 150, 1)));
+            const scale = 1 + (m.age / 150) * 7; // 시간에 따라 커짐
+            m.age++;
+            
             m.el.style.left = m.x + 'px';
             m.el.style.top = m.y + 'px';
-            m.el.style.transform = `scale(${Math.max(0.5, Math.min(scale, maxScale))})`;
+            m.el.style.transform = `scale(${Math.max(0.5, Math.min(scale, 8))})`;
 
-            // 화면 밖으로 나가면 삭제만 함
-            if (m.y > 160 || m.x < -40) { 
+            // 화면 밖으로 나가면 삭제
+            if (m.x > 650 || m.y < -100) { 
                 m.el.remove(); 
                 meteors.splice(i, 1); 
                 continue;
@@ -625,14 +609,14 @@
         if (!isPlaying) return;
         const el = document.createElement('div');
         el.className = 'meteor';
-        let startX = 600 + Math.random() * 100;
+        let startX = -100; // 왼쪽에서 시작
         let startY = -80;
         el.style.left = startX + 'px';
         el.style.top = startY + 'px';
         el.style.width = '4px';
         el.style.height = '4px';
         gameContainer.appendChild(el);
-        meteors.push({ el: el, x: startX, y: startY });
+        meteors.push({ el: el, x: startX, y: startY, age: 0 });
         
         // 메테오 생성 시 지진
         triggerEarthquake();
