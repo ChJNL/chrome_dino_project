@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>크롬 스타일 브라키오 게임 - 돌진 파괴 버전</title>
+    <title>크롬 스타일 브라키오 게임 - 완벽 수정 버전</title>
     <style>
         /* 기본 스타일 및 낮/밤 테마 */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
@@ -29,7 +29,7 @@
             90% { transform: translateX(-1px) translateY(0px); }
         }
         
-        #game.shake { animation: shake 0.5s ease-in-out; }
+        #game.shake { animation: shake 0.4s ease-in-out; }
 
         /* 점수 영역 */
         #score-area { position: absolute; top: 10px; right: 10px; color: var(--main-color); font-size: 18px; font-weight: bold; z-index: 10; }
@@ -55,7 +55,7 @@
         /* 공룡 공통 베이스 */
         #dino { position: absolute; left: 40px; bottom: 2px; width: 4px; height: 4px; background: transparent; z-index: 5; transition: transform 0.1s; }
 
-        /* 돌진 상태 (앞으로 기울며 이동, 오라 효과) */
+        /* 돌진 상태 (앞으로 기울며 오라 효과) */
         .dashing { transform: translateX(30px) skewX(-15deg) !important; filter: drop-shadow(0 0 8px #ffaa00); }
 
         /* 브라키오 총 */
@@ -70,7 +70,7 @@
         /* 숙여서 달리기 A */
         .duck-a { box-shadow: 12px -8px 0 var(--main-color), 16px -8px 0 var(--main-color), 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color), 32px -8px 0 var(--main-color), 36px -8px 0 var(--main-color), 40px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 12px -4px 0 var(--main-color), 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 24px -4px 0 var(--main-color), 28px -4px 0 var(--main-color), 32px -4px 0 var(--main-color), 4px 0px 0 var(--main-color), 8px 0px 0 var(--main-color), 12px 0px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color), 24px 0px 0 var(--main-color), 28px 0px 0 var(--main-color), 8px 4px 0 var(--main-color), 24px 4px 0 var(--main-color); }
         /* 숙여서 달리기 B */
-        .duck-b { box-shadow: 12px -8px 0 var(--main-color), 16px -8px 0 var(--main-color), 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color), 32px -8px 0 var(--main-color), 36px -8px 0 var(--main-color), 40px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 12px -4px 0 var(--main-color), 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 24px -4px 0 var(--main-color), 28px -4px 0 var(--main-color), 32px -4px 0 var(--main-color), 4px 0px 0 var(--main-color), 8px 0px 0 var(--main-color), 12px 0px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color), 24px 0px 0 var(--main-color), 28px 0px 0 var(--main-color), 12px 4px 0 var(--main-color), 20px 4px 0 var(--main-color); }
+        .duck-b { box-shadow: 12px -8px 0 var(--main-color), 16px -8px 0 var(--main-color), 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color), 32px -8px 0 var(--main-color), 36px -8px 0 var(--main-color), 40px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 12px -4px 0 var(--main-color), 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 24px -4px 0 var(--main-color), 28px -4px 0 var(--main-color), 32px -4px 0 var(--main-color), 4px 0px 0 var(--main-color), 8px 0px 0 var(--main-color), 12px 0px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px -4px 0 var(--main-color), 24px -4px 0 var(--main-color), 28px -4px 0 var(--main-color), 12px 4px 0 var(--main-color), 20px 4px 0 var(--main-color); }
 
         /* 장애물 구조 */
         .obstacle { position: absolute; background: transparent; z-index: 4; }
@@ -79,21 +79,21 @@
         /* 프테라노돈 */
         .ptera { width: 4px; height: 4px; position: relative; }
         .ptera.fly-a { box-shadow: 
-            /* 머리 */ 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color),
-            /* 부리 */ 32px -8px 0 var(--main-color), 36px -8px 0 var(--main-color),
-            /* 크레스트 */ 24px -12px 0 var(--main-color), 20px -12px 0 var(--main-color),
-            /* 몸 */ 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color),
-            /* 왼쪽 날개 상단 */ 8px -10px 0 var(--main-color), 4px -8px 0 var(--main-color), 0px -6px 0 var(--main-color),
-            /* 오른쪽 날개 상단 */ 32px -10px 0 var(--main-color), 36px -8px 0 var(--main-color), 40px -6px 0 var(--main-color),
-            /* 다리 */ 18px 4px 0 var(--main-color), 22px 4px 0 var(--main-color); }
+            20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color),
+            32px -8px 0 var(--main-color), 36px -8px 0 var(--main-color),
+            24px -12px 0 var(--main-color), 20px -12px 0 var(--main-color),
+            16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color),
+            8px -10px 0 var(--main-color), 4px -8px 0 var(--main-color), 0px -6px 0 var(--main-color),
+            32px -10px 0 var(--main-color), 36px -8px 0 var(--main-color), 40px -6px 0 var(--main-color),
+            18px 4px 0 var(--main-color), 22px 4px 0 var(--main-color); }
         .ptera.fly-b { box-shadow: 
-            /* 머리 */ 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color),
-            /* 부리 */ 32px -8px 0 var(--main-color), 36px -8px 0 var(--main-color),
-            /* 크레스트 */ 24px -12px 0 var(--main-color), 20px -12px 0 var(--main-color),
-            /* 몸 */ 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color),
-            /* 왼쪽 날개 하단 */ 8px -8px 0 var(--main-color), 4px -4px 0 var(--main-color), 0px -2px 0 var(--main-color),
-            /* 오른쪽 날개 하단 */ 32px -8px 0 var(--main-color), 36px -4px 0 var(--main-color), 40px -2px 0 var(--main-color),
-            /* 다리 */ 18px 4px 0 var(--main-color), 22px 4px 0 var(--main-color); }
+            20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color),
+            32px -8px 0 var(--main-color), 36px -8px 0 var(--main-color),
+            24px -12px 0 var(--main-color), 20px -12px 0 var(--main-color),
+            16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color),
+            8px -8px 0 var(--main-color), 4px -4px 0 var(--main-color), 0px -2px 0 var(--main-color),
+            32px -8px 0 var(--main-color), 36px -4px 0 var(--main-color), 40px -2px 0 var(--main-color),
+            18px 4px 0 var(--main-color), 22px 4px 0 var(--main-color); }
 
         /* 다양한 아기 공룡 */
         .baby-dino { position: absolute; width: 4px; height: 4px; background: transparent; z-index: 4; transform: scale(0.6); transform-origin: bottom left; transition: transform 0.1s; }
@@ -171,6 +171,7 @@
     let isDucking = false; 
     let isDashing = false; // 돌진 상태
     let dashTimer = 0;     // 돌진 타이머
+    let dashGrace = 0;     // 돌진 직후 무적 유예 시간
     
     let dinoY = 0;
     let jumpVelocity = 0;
@@ -335,11 +336,11 @@
             e.preventDefault();
             if (!isJumping && !trex && !finalBoss) { isDucking = true; }
         } else if (e.code === 'KeyC' || e.key === 'c' || e.key === 'C') {
-            // C키 누를 때 돌진 기능
+            // C키 돌진 기능
             e.preventDefault();
             if (!isDashing && !trex && !finalBoss) {
                 isDashing = true;
-                dashTimer = 25; // 약 0.4초 유지
+                dashTimer = 22; // 돌진 유지 프레임
             }
         }
     });
@@ -357,6 +358,7 @@
         isDucking = false; 
         isDashing = false;
         dashTimer = 0;
+        dashGrace = 0;
         jumpVelocity = 0;
         obstacles = [];
         clouds = [];
@@ -423,12 +425,10 @@
                 if (score > 0 && score % 600 === 0) toggleNightMode();
                 if (score > 0 && score % 600 === 0) createBabyDino();
                 
-                // 1000점에서 보스 출현
                 if (score === 1000 && !finalBoss && !trex) {
                     createFinalBoss();
                 }
                 
-                // 600점마다 50% 확률로 무적 별
                 if (score > 0 && score % 600 === 0 && Math.random() < 0.5) {
                     activateStar();
                 }
@@ -455,7 +455,8 @@
         const obs = document.createElement('div');
         obs.className = 'obstacle';
         let type = 'cactus';
-        let hitbox = { left: 8, right: 24, bottom: 0, top: 24 };
+        // 선인장 히트박스를 시각적 픽셀에 맞게 정확히 설정하여 억울한 죽음 원천 차단
+        let hitbox = { left: 2, right: 18, bottom: 0, top: 22 };
         let y = 0;
 
         if (score > 300 && Math.random() < 0.3) {
@@ -564,7 +565,7 @@
         isPlaying = false;
         clearInterval(scoreInterval);
         clearInterval(gameLoopInterval);
-        dino.className = 'duck-a'; // 죽으면 엎드림
+        dino.className = 'duck-a';
         msgGameover.style.display = 'flex';
         if (score > hiScore) {
             hiScore = score;
@@ -580,7 +581,10 @@
             dashTimer--;
             if (dashTimer <= 0) {
                 isDashing = false;
+                dashGrace = 10; // 돌진 직후 10프레임 동안 무적 유예
             }
+        } else if (dashGrace > 0) {
+            dashGrace--;
         }
 
         // --- 공룡 물리 ---
@@ -603,7 +607,7 @@
             animTimer = 0;
         }
 
-        // 공룡 클래스 업데이트 (무기, 자세, 돌진)
+        // 공룡 클래스 업데이트
         let dinoClasses = '';
         if (trex || finalBoss) dinoClasses += 'armed ';
         if (isJumping) dinoClasses += 'stand-a ';
@@ -622,7 +626,6 @@
             let state = dinoHistory[delay];
             if (state) {
                 baby.el.style.bottom = (2 + state.y) + 'px';
-                // 돌진 위치 보정값 적용
                 const dashOffset = state.dash ? 30 : 0;
                 baby.el.style.left = (40 - (index + 1) * 22 + dashOffset) + 'px'; 
                 
@@ -654,7 +657,7 @@
             }
         }
 
-        // --- 총알 이동 및 보스 타격 판정 ---
+        // --- 총알 이동 및 보스 타격 ---
         for (let i = bullets.length - 1; i >= 0; i--) {
             let b = bullets[i];
             b.x += 10;
@@ -713,7 +716,6 @@
             finalBoss.el.style.left = finalBoss.x + 'px';
             finalBoss.el.className = 'trex ' + (currentFrame === 'a' ? 'stand-a' : 'stand-b');
             
-            // 불 뿜기
             if (Math.random() < 0.1) {
                 finalBoss.breathing = true;
                 createFire(finalBoss.x, 20 + Math.random() * 20);
@@ -737,9 +739,8 @@
                 obs.el.className = 'obstacle ptera fly-' + pteraFrame;
             }
 
-            // 충돌 판정 (별 무적, 돌진 파괴 고려)
-            if (!starActive) {
-                // 돌진 시 시각적으로 30px 앞으로 이동하므로 판정박스도 보정
+            // 충돌 판정
+            if (!starActive && dashGrace === 0) {
                 const dashOffset = isDashing ? 30 : 0;
                 const dinoRight = 40 + dashOffset + (isDucking ? 40 : 32);
                 const dinoLeft = 40 + dashOffset;
@@ -753,13 +754,13 @@
 
                 if (dinoRight > obsLeft && dinoLeft < obsRight && dinoBottom < obsTop && dinoTop > obsBottom) {
                     if (isDashing && obs.type === 'cactus') {
-                        // 돌진 중 선인장 접촉 시 파괴
+                        // 돌진 시 화면 흔들림과 함께 선인장 완벽 파괴
                         obs.el.remove();
                         obstacles.splice(i, 1);
-                        score += 50; // 파괴 보너스 점수
+                        triggerEarthquake();
+                        score += 50; 
                         continue;
                     } else if (obs.type === 'ptera' && dinoBottom > obsTop - 10 && jumpVelocity < 0) {
-                        // 익룡 밟아서 처치
                         obs.el.remove();
                         obstacles.splice(i, 1);
                         score += 100;
@@ -773,7 +774,6 @@
                 }
             }
 
-            // 화면 밖으로 나간 장애물 제거
             if (obs.x < -50) {
                 obs.el.remove();
                 obstacles.splice(i, 1);
@@ -803,7 +803,6 @@
         }
     }
 
-    // 초기 화면 설정
     msgStart.style.display = 'flex';
 </script>
 </body>
