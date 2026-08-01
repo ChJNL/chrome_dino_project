@@ -73,8 +73,26 @@
         .obstacle { position: absolute; background: transparent; z-index: 4; }
         .cactus { bottom: 2px; width: 4px; height: 4px; box-shadow: 8px -24px 0 var(--main-color), 8px -20px 0 var(--main-color), 0px -16px 0 var(--main-color), 8px -16px 0 var(--main-color), 16px -16px 0 var(--main-color), 0px -12px 0 var(--main-color), 8px -12px 0 var(--main-color), 16px -12px 0 var(--main-color), 0px -8px 0 var(--main-color), 8px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 8px 0px 0 var(--main-color); transition: all 0.2s; }
         .cactus.broken { box-shadow: none !important; }
-        .cactus.growing { animation: cactusGrow 2s ease-out forwards; }
-        @keyframes cactusGrow { from { height: 24px; } to { height: 150px; } }
+        .cactus.growing { transform-origin: bottom center; animation: cactusGrow 2s ease-out forwards; }
+        @keyframes cactusGrow { from { transform: scaleY(1); } to { transform: scaleY(6.25); } }
+
+        /* 거대 선인장을 먹었을 때 쓰러지는 애니메이션 */
+        .cactus.falling { transform-origin: bottom center; animation: cactusFall 0.5s ease-in forwards; }
+        @keyframes cactusFall {
+            0% { transform: scaleY(6.25) rotate(0deg); opacity: 1; }
+            40% { transform: scaleY(5) rotate(55deg) translateX(6px); opacity: 0.9; }
+            100% { transform: scaleY(1) rotate(100deg) translateX(24px) translateY(10px); opacity: 0; }
+        }
+
+        /* 브라키오가 거대 선인장을 먹는 애니메이션 */
+        #dino.eating { transform-origin: bottom left; animation: eatBite 0.5s ease-in-out; }
+        @keyframes eatBite {
+            0% { transform: scaleX(1) scaleY(1) translateX(0); }
+            20% { transform: scaleX(1.15) scaleY(0.85) translateX(3px); }
+            50% { transform: scaleX(0.9) scaleY(1.1) translateX(-2px); }
+            75% { transform: scaleX(1.08) scaleY(0.92) translateX(2px); }
+            100% { transform: scaleX(1) scaleY(1) translateX(0); }
+        }
         
         /* 프테라노돈 - 새로운 디자인 */
         .ptera { width: 4px; height: 4px; position: relative; }
@@ -199,6 +217,9 @@
     // 별 획득 타이머
     let starActive = false;
     let starTimer = 0;
+
+    // 거대 선인장 먹기 상태
+    let isEating = false;
 
     // 지진 효과 함수
     function triggerEarthquake() {
@@ -333,8 +354,11 @@
             const gameWidth = gameContainer.clientWidth;
 
             if (touchX > gameWidth / 2) {
+                const eatable = canEatGiantCactus();
                 if (trex || finalBoss) {
                     shootGun();
+                } else if (eatable) {
+                    eatGiantCactus(eatable);
                 } else if (!isJumping && !isDucking) { 
                     isJumping = true; jumpVelocity = 10; 
                 }
@@ -357,8 +381,11 @@
 
         if (e.code === 'Space' || e.code === 'ArrowUp') {
             e.preventDefault(); 
+            const eatable = canEatGiantCactus();
             if (trex || finalBoss) {
                 shootGun();
+            } else if (eatable) {
+                eatGiantCactus(eatable);
             } else if (!isJumping && !isDucking) { 
                 isJumping = true; jumpVelocity = 10; 
             }
@@ -390,6 +417,8 @@
         nextSpawnDistance = 250;
         starActive = false;
         lastGrowScore = 0;
+        isEating = false;
+        dino.classList.remove('eating');
 
         for (let i = meteors.length - 1; i >= 0; i--) {
             if (meteors[i] && meteors[i].el) {
@@ -466,9 +495,9 @@
                 
                 if (score > 0 && score % 600 === 0) createBabyDino();
                 
-                // 10점마다 선인장 성장 체크
-                if (score > 0 && Math.floor(score / 10) > lastGrowScore && Math.random() < 0.5) {
-                    lastGrowScore = Math.floor(score / 10);
+                // 200점마다 선인장 성장 체크
+                if (score > 0 && Math.floor(score / 200) > lastGrowScore && Math.random() < 0.5) {
+                    lastGrowScore = Math.floor(score / 200);
                     growCactus();
                 }
                 
@@ -510,6 +539,42 @@
         cactus.hitbox = { left: 2, right: 14, bottom: 0, top: 150 };
     }
 
+    // 거대해진 선인장이 사정거리 안에 들어왔는지 확인 (점프 대신 먹기가 가능한 상태)
+    function canEatGiantCactus() {
+        if (!growingCactus || growingCactus.eaten || isEating || isJumping) return null;
+        const dinoRight = 40 + (isDucking ? 40 : 32);
+        const obsLeft = growingCactus.x + growingCactus.hitbox.left;
+        const EAT_RANGE = 40; // 선인장이 이 거리 안으로 들어오면 먹기 입력을 받음
+        if (obsLeft - dinoRight < EAT_RANGE && obsLeft + 20 > 0) {
+            return growingCactus;
+        }
+        return null;
+    }
+
+    // 거대 선인장을 먹는 동작: 점프 대신 실행되는 액션
+    function eatGiantCactus(cactus) {
+        cactus.eaten = true;
+        cactus.hitbox = { left: 0, right: 0, bottom: 0, top: 0 }; // 즉시 충돌 무효화 (먹는 도중 죽지 않도록)
+        isEating = true;
+
+        dino.classList.add('eating');
+        cactus.el.classList.remove('growing');
+        cactus.el.classList.add('falling');
+        score += 50; // 거대 선인장을 먹은 보상 점수
+
+        setTimeout(() => {
+            dino.classList.remove('eating');
+            isEating = false;
+        }, 500);
+
+        setTimeout(() => {
+            cactus.el.remove();
+            obstacles = obstacles.filter(o => o !== cactus);
+            cactusList = cactusList.filter(o => o !== cactus);
+            if (growingCactus === cactus) growingCactus = null;
+        }, 500);
+    }
+
     function updateGame() {
         if (!isPlaying) return;
 
@@ -533,7 +598,7 @@
             animTimer = 0;
         }
 
-        dino.className = (trex || finalBoss ? 'armed ' : ''); 
+        dino.className = (trex || finalBoss ? 'armed ' : '') + (isEating ? 'eating ' : '');
         if (isJumping) dino.classList.add('stand-a'); 
         else if (isDucking) dino.classList.add(currentFrame === 'a' ? 'duck-a' : 'duck-b'); 
         else dino.classList.add(currentFrame === 'a' ? 'stand-a' : 'stand-b'); 
@@ -717,13 +782,7 @@
                 let obsBottom = obs.hitbox.bottom, obsTop = obs.hitbox.top;
 
                 if (obsLeft < dinoRight && obsRight > dinoLeft && dinoBottom < obsTop && dinoTop > obsBottom) {
-                    // 성장 중인 선인장 처리
-                    if (growingCactus === obs && isJumping) {
-                        // 점프로 밑부분만 먹음
-                        obs.el.classList.add('broken');
-                        obs.hitbox = { left: 0, right: 0, bottom: 0, top: 0 };
-                        growingCactus = null;
-                    } else if (starActive && obs.el.classList.contains('cactus')) {
+                    if (starActive && obs.el.classList.contains('cactus')) {
                         // 별 활성화 상태
                         obs.el.classList.add('broken');
                         obs.hitbox = { left: 0, right: 0, bottom: 0, top: 0 };
