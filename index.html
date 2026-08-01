@@ -40,6 +40,11 @@
         .star-icon { font-size: 48px; margin-bottom: 10px; }
         .star-text { color: var(--main-color); font-size: 24px; font-weight: bold; }
 
+        /* CLEAR 화면 */
+        #clear-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); display: none; z-index: 100; flex-direction: column; justify-content: center; align-items: center; }
+        .clear-text { color: white; font-size: 64px; font-weight: bold; letter-spacing: 10px; text-shadow: 0 0 20px yellow; animation: clearPulse 0.6s infinite; }
+        @keyframes clearPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
         /* 별과 달 컨테이너 */
         .stars-container { position: absolute; width: 100%; height: 100%; z-index: 0; display: none; }
         body.night-mode .stars-container { display: block; }
@@ -66,20 +71,31 @@
 
         /* 장애물 구조 */
         .obstacle { position: absolute; background: transparent; z-index: 4; }
-        .cactus { bottom: 2px; width: 4px; height: 4px; box-shadow: 8px -24px 0 var(--main-color), 8px -20px 0 var(--main-color), 0px -16px 0 var(--main-color), 8px -16px 0 var(--main-color), 16px -16px 0 var(--main-color), 0px -12px 0 var(--main-color), 8px -12px 0 var(--main-color), 16px -12px 0 var(--main-color), 0px -8px 0 var(--main-color), 8px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 8px 0px 0 var(--main-color); }
+        .cactus { bottom: 2px; width: 4px; height: 4px; box-shadow: 8px -24px 0 var(--main-color), 8px -20px 0 var(--main-color), 0px -16px 0 var(--main-color), 8px -16px 0 var(--main-color), 16px -16px 0 var(--main-color), 0px -12px 0 var(--main-color), 8px -12px 0 var(--main-color), 16px -12px 0 var(--main-color), 0px -8px 0 var(--main-color), 8px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 8px 0px 0 var(--main-color); transition: all 0.2s; }
         .cactus.broken { box-shadow: none !important; }
+        .cactus.growing { animation: cactusGrow 2s ease-out forwards; }
+        @keyframes cactusGrow { from { height: 24px; } to { height: 150px; } }
         
-        /* 프테라노돈 - 픽셀 아트 버전 */
-        .ptera { width: 4px; height: 4px; box-shadow: 
-            /* 부리 (길쭉한) */ 36px -20px 0 var(--main-color), 40px -20px 0 var(--main-color), 44px -20px 0 var(--main-color), 48px -20px 0 var(--main-color),
-            /* 머리 */ 32px -16px 0 var(--main-color), 36px -16px 0 var(--main-color), 40px -16px 0 var(--main-color),
-            /* 후두부 크레스트 */ 32px -12px 0 var(--main-color), 28px -8px 0 var(--main-color), 24px -4px 0 var(--main-color),
-            /* 목/몸 */ 28px -12px 0 var(--main-color), 24px -12px 0 var(--main-color), 24px -8px 0 var(--main-color), 20px -8px 0 var(--main-color), 20px -4px 0 var(--main-color),
-            /* 왼쪽 날개 (큼) */ 4px -14px 0 var(--main-color), 8px -14px 0 var(--main-color), 0px -10px 0 var(--main-color), 4px -10px 0 var(--main-color), 8px -10px 0 var(--main-color), 12px -10px 0 var(--main-color), 0px -6px 0 var(--main-color), 4px -6px 0 var(--main-color), 8px -6px 0 var(--main-color),
-            /* 오른쪽 날개 (큼) */ 40px -14px 0 var(--main-color), 44px -14px 0 var(--main-color), 48px -10px 0 var(--main-color), 52px -10px 0 var(--main-color), 56px -10px 0 var(--main-color), 60px -10px 0 var(--main-color), 48px -6px 0 var(--main-color), 52px -6px 0 var(--main-color), 56px -6px 0 var(--main-color),
-            /* 다리 */ 26px 0px 0 var(--main-color), 30px 0px 0 var(--main-color); }
+        /* 프테라노돈 - 새로운 디자인 */
+        .ptera { width: 4px; height: 4px; position: relative; }
+        .ptera.fly-a { box-shadow: 
+            /* 머리 */ 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color),
+            /* 부리 */ 32px -8px 0 var(--main-color), 36px -8px 0 var(--main-color),
+            /* 크레스트 */ 24px -12px 0 var(--main-color), 20px -12px 0 var(--main-color),
+            /* 몸 */ 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color),
+            /* 왼쪽 날개 상단 */ 8px -10px 0 var(--main-color), 4px -8px 0 var(--main-color), 0px -6px 0 var(--main-color),
+            /* 오른쪽 날개 상단 */ 32px -10px 0 var(--main-color), 36px -8px 0 var(--main-color), 40px -6px 0 var(--main-color),
+            /* 다리 */ 18px 4px 0 var(--main-color), 22px 4px 0 var(--main-color); }
+        .ptera.fly-b { box-shadow: 
+            /* 머리 */ 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color),
+            /* 부리 */ 32px -8px 0 var(--main-color), 36px -8px 0 var(--main-color),
+            /* 크레스트 */ 24px -12px 0 var(--main-color), 20px -12px 0 var(--main-color),
+            /* 몸 */ 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color),
+            /* 왼쪽 날개 하단 */ 8px -8px 0 var(--main-color), 4px -4px 0 var(--main-color), 0px -2px 0 var(--main-color),
+            /* 오른쪽 날개 하단 */ 32px -8px 0 var(--main-color), 36px -4px 0 var(--main-color), 40px -2px 0 var(--main-color),
+            /* 다리 */ 18px 4px 0 var(--main-color), 22px 4px 0 var(--main-color); }
 
-        /* 메테오 - 무시됨 */
+        /* 메테오 */
         .meteor { position: absolute; width: 4px; height: 4px; background: #FF6347; z-index: 3; pointer-events: none; }
 
         /* 다양한 아기 공룡 */
@@ -88,6 +104,9 @@
         /* 보스 티라노 */
         .trex { position: absolute; width: 4px; height: 4px; background: transparent; z-index: 15; transform: scale(1.6) scaleX(-1); transform-origin: bottom right; }
         .trex-hp { position: absolute; top: -25px; left: -15px; color: red; font-size: 10px; font-weight: bold; transform: scaleX(-1); width: 60px; pointer-events: none; }
+
+        /* 불 파티클 */
+        .fire { position: absolute; width: 8px; height: 8px; background: #FF4500; border-radius: 50%; z-index: 7; box-shadow: 0 0 8px #FF8C00; }
 
         /* 안내 문구 오버레이 */
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--main-color); font-size: 16px; font-weight: bold; background-color: var(--bg-color); z-index: 20; text-align: center; padding: 10px; }
@@ -101,6 +120,9 @@
 <div id="game">
     <div class="stars-container" id="stars-container"></div>
     <div id="clouds"></div>
+    <div id="clear-screen">
+        <div class="clear-text">CLEAR</div>
+    </div>
     <div id="star-timer">
         <div class="star-icon">⭐</div>
         <div class="star-text" id="timer-text">3</div>
@@ -137,6 +159,7 @@
     const msgGameover = document.getElementById('msg-gameover');
     const starTimerUI = document.getElementById('star-timer');
     const timerText = document.getElementById('timer-text');
+    const clearScreen = document.getElementById('clear-screen');
 
     let isPlaying = false;
     let score = 0;
@@ -144,6 +167,7 @@
     let scoreInterval;
     let gameLoopInterval;
     let isNight = false;
+    let gameCleared = false;
     
     let isJumping = false;
     let isDucking = false; 
@@ -159,13 +183,18 @@
 
     let animTimer = 0;
     let currentFrame = 'a';
+    let pteraFrame = 'a';
 
     let meteors = [];
     let babyDinos = [];
     let dinoHistory = []; 
-    let trex = null;      
+    let trex = null;
+    let finalBoss = null;
     let bullets = [];
     let cactusList = [];
+    let growingCactus = null;
+    let fires = [];
+    let lastGrowScore = 0;
 
     // 별 획득 타이머
     let starActive = false;
@@ -304,13 +333,13 @@
             const gameWidth = gameContainer.clientWidth;
 
             if (touchX > gameWidth / 2) {
-                if (trex) {
+                if (trex || finalBoss) {
                     shootGun();
                 } else if (!isJumping && !isDucking) { 
                     isJumping = true; jumpVelocity = 10; 
                 }
             } else {
-                if (!isJumping && !trex) { isDucking = true; } 
+                if (!isJumping && !trex && !finalBoss) { isDucking = true; } 
             }
         }
     }, { passive: false });
@@ -328,14 +357,14 @@
 
         if (e.code === 'Space' || e.code === 'ArrowUp') {
             e.preventDefault(); 
-            if (trex) {
+            if (trex || finalBoss) {
                 shootGun();
             } else if (!isJumping && !isDucking) { 
                 isJumping = true; jumpVelocity = 10; 
             }
         } else if (e.code === 'ArrowDown') {
             e.preventDefault();
-            if (!isJumping && !trex) { isDucking = true; }
+            if (!isJumping && !trex && !finalBoss) { isDucking = true; }
         }
     });
 
@@ -346,6 +375,7 @@
 
     function startGame() {
         isPlaying = true;
+        gameCleared = false;
         score = 0;
         dinoY = 0;
         isJumping = false;
@@ -354,10 +384,12 @@
         obstacles = [];
         clouds = [];
         cactusList = [];
+        growingCactus = null;
         isNight = false;
         obstacleSpeed = 4; 
         nextSpawnDistance = 250;
         starActive = false;
+        lastGrowScore = 0;
 
         for (let i = meteors.length - 1; i >= 0; i--) {
             if (meteors[i] && meteors[i].el) {
@@ -380,10 +412,22 @@
         }
         bullets = [];
 
+        for (let i = fires.length - 1; i >= 0; i--) {
+            if (fires[i] && fires[i].el) {
+                fires[i].el.remove();
+            }
+        }
+        fires = [];
+
         if(trex && trex.el) { 
             trex.el.remove(); 
             trex = null; 
             dino.classList.remove('armed'); 
+        }
+
+        if(finalBoss && finalBoss.el) { 
+            finalBoss.el.remove(); 
+            finalBoss = null; 
         }
         
         dinoHistory = [];
@@ -401,6 +445,7 @@
         cloudsContainer.innerHTML = '';
         starsContainer.innerHTML = '';
         starTimerUI.style.display = 'none';
+        clearScreen.style.display = 'none';
         body.classList.remove('night-mode');
         msgStart.style.display = 'none';
         msgGameover.style.display = 'none';
@@ -421,8 +466,17 @@
                 
                 if (score > 0 && score % 600 === 0) createBabyDino();
                 
-                if (score > 0 && score % 1000 === 0 && !trex) createTrex();
-
+                // 10점마다 선인장 성장 체크
+                if (score > 0 && Math.floor(score / 10) > lastGrowScore && Math.random() < 0.5) {
+                    lastGrowScore = Math.floor(score / 10);
+                    growCactus();
+                }
+                
+                // 1000점에서 보스 출현
+                if (score === 1000 && !finalBoss && !trex) {
+                    createFinalBoss();
+                }
+                
                 // 600점마다 50% 확률로 별
                 if (score > 0 && score % 600 === 0 && Math.random() < 0.5) {
                     activateStar();
@@ -446,6 +500,16 @@
         obstacleSpeed += 0.5; 
     }
 
+    // 선인장 성장
+    function growCactus() {
+        if (!cactusList || cactusList.length === 0) return;
+        
+        const cactus = cactusList[0];
+        growingCactus = cactus;
+        cactus.el.classList.add('growing');
+        cactus.hitbox = { left: 2, right: 14, bottom: 0, top: 150 };
+    }
+
     function updateGame() {
         if (!isPlaying) return;
 
@@ -465,10 +529,11 @@
         animTimer++;
         if (animTimer > 8) { 
             currentFrame = (currentFrame === 'a') ? 'b' : 'a';
+            pteraFrame = (pteraFrame === 'a') ? 'b' : 'a';
             animTimer = 0;
         }
 
-        dino.className = (trex ? 'armed ' : ''); 
+        dino.className = (trex || finalBoss ? 'armed ' : ''); 
         if (isJumping) dino.classList.add('stand-a'); 
         else if (isDucking) dino.classList.add(currentFrame === 'a' ? 'duck-a' : 'duck-b'); 
         else dino.classList.add(currentFrame === 'a' ? 'stand-a' : 'stand-b'); 
@@ -489,29 +554,44 @@
             }
         });
 
-        // --- 메테오 이동 (왼쪽에서 오른쪽으로, 충돌 검사 NO) ---
+        // --- 메테오 이동 (아래로 내려가면서 커짐) ---
         for (let i = meteors.length - 1; i >= 0; i--) {
             let m = meteors[i];
-            m.x += 6; // 오른쪽으로 이동
-            m.y -= 2; // 위로 이동 (하늘로)
-            
-            // 크기 점점 커짐
-            const scale = 1 + (m.age / 150) * 7; // 시간에 따라 커짐
+            m.y += 4; // 아래로 이동
             m.age++;
             
+            // 크기 점점 커짐
+            const scale = 1 + (m.age / 60) * 7;
             m.el.style.left = m.x + 'px';
             m.el.style.top = m.y + 'px';
             m.el.style.transform = `scale(${Math.max(0.5, Math.min(scale, 8))})`;
 
             // 화면 밖으로 나가면 삭제
-            if (m.x > 650 || m.y < -100) { 
+            if (m.y > 160) { 
                 m.el.remove(); 
                 meteors.splice(i, 1); 
-                continue;
             }
         }
 
-        // --- 총알 이동 및 티라노 타격 판정 ---
+        // --- 불 파티클 ---
+        if (finalBoss && finalBoss.breathing) {
+            for (let i = fires.length - 1; i >= 0; i--) {
+                let f = fires[i];
+                f.x += f.vx;
+                f.y -= 2;
+                f.life--;
+                f.el.style.left = f.x + 'px';
+                f.el.style.top = f.y + 'px';
+                f.el.style.opacity = f.life / 30;
+                
+                if (f.life <= 0) {
+                    f.el.remove();
+                    fires.splice(i, 1);
+                }
+            }
+        }
+
+        // --- 총알 이동 및 보스 타격 판정 ---
         for (let i = bullets.length - 1; i >= 0; i--) {
             let b = bullets[i];
             b.x += 10;
@@ -534,17 +614,62 @@
                     dino.classList.remove('armed');
                     score += 200; 
                     restoreCactus();
+                    return;
+                }
+            }
+
+            if (finalBoss && b.x > finalBoss.x && b.x < finalBoss.x + 40) {
+                finalBoss.hp--;
+                finalBoss.hpEl.innerText = 'HP: ' + finalBoss.hp;
+                
+                finalBoss.el.style.filter = 'drop-shadow(0 0 5px red) brightness(2)';
+                setTimeout(() => { if(finalBoss) finalBoss.el.style.filter = 'none'; }, 100);
+
+                b.el.remove(); bullets.splice(i, 1);
+
+                if (finalBoss.hp <= 0) {
+                    triggerFinalBossDeath();
                 }
             }
         }
 
-        // --- 보스 티라노 업데이트 ---
+        // --- 보스 업데이트 ---
         if (trex && isPlaying) {
             trex.x -= obstacleSpeed * 0.4; 
             trex.el.style.left = trex.x + 'px';
             trex.el.className = 'trex ' + (currentFrame === 'a' ? 'stand-a' : 'stand-b'); 
             
             if (trex.x < 40 + 32) {
+                endGame();
+                return;
+            }
+        }
+
+        if (finalBoss && isPlaying) {
+            finalBoss.x -= obstacleSpeed * 0.3;
+            finalBoss.el.style.left = finalBoss.x + 'px';
+            finalBoss.el.className = 'trex ' + (currentFrame === 'a' ? 'stand-a' : 'stand-b');
+            
+            // 불 뿜기
+            if (Math.random() < 0.1) {
+                finalBoss.breathing = true;
+                for (let j = 0; j < 5; j++) {
+                    const fire = document.createElement('div');
+                    fire.className = 'fire';
+                    fire.style.left = (finalBoss.x + 20 + Math.random() * 20) + 'px';
+                    fire.style.top = (100 + Math.random() * 30) + 'px';
+                    gameContainer.appendChild(fire);
+                    fires.push({
+                        el: fire,
+                        x: finalBoss.x + 20 + Math.random() * 20,
+                        y: 100 + Math.random() * 30,
+                        vx: -2 - Math.random() * 2,
+                        life: 30
+                    });
+                }
+            }
+            
+            if (finalBoss.x < 40 + 32) {
                 endGame();
                 return;
             }
@@ -559,7 +684,7 @@
             if (cloud.x < -40) { cloud.el.remove(); clouds.splice(i, 1); }
         }
 
-        if (!trex) {
+        if (!trex && !finalBoss) {
             let lastObstacleX = 0;
             if (obstacles.length > 0) lastObstacleX = obstacles[obstacles.length - 1].x;
 
@@ -592,11 +717,18 @@
                 let obsBottom = obs.hitbox.bottom, obsTop = obs.hitbox.top;
 
                 if (obsLeft < dinoRight && obsRight > dinoLeft && dinoBottom < obsTop && dinoTop > obsBottom) {
-                    // 별이 활성화되어 있으면 장애물 파괴
-                    if (starActive && obs.el.classList.contains('cactus')) {
+                    // 성장 중인 선인장 처리
+                    if (growingCactus === obs && isJumping) {
+                        // 점프로 밑부분만 먹음
+                        obs.el.classList.add('broken');
+                        obs.hitbox = { left: 0, right: 0, bottom: 0, top: 0 };
+                        growingCactus = null;
+                    } else if (starActive && obs.el.classList.contains('cactus')) {
+                        // 별 활성화 상태
                         obs.el.classList.add('broken');
                         obs.hitbox = { left: 0, right: 0, bottom: 0, top: 0 };
                     } else {
+                        // 죽음
                         endGame();
                         return;
                     }
@@ -609,7 +741,7 @@
         if (!isPlaying) return;
         const el = document.createElement('div');
         el.className = 'meteor';
-        let startX = -100; // 왼쪽에서 시작
+        let startX = 300 + Math.random() * 100;
         let startY = -80;
         el.style.left = startX + 'px';
         el.style.top = startY + 'px';
@@ -618,7 +750,6 @@
         gameContainer.appendChild(el);
         meteors.push({ el: el, x: startX, y: startY, age: 0 });
         
-        // 메테오 생성 시 지진
         triggerEarthquake();
     }
 
@@ -659,6 +790,59 @@
         gameContainer.appendChild(trex.el);
     }
 
+    // 최종 보스
+    function createFinalBoss() {
+        if (!isPlaying) return;
+        dino.classList.add('armed');
+        isDucking = false;
+
+        // 모든 선인장 제거
+        cactusList.forEach(cactus => {
+            if (cactus && cactus.el) {
+                cactus.el.remove();
+            }
+        });
+        cactusList = [];
+        obstacles = obstacles.filter(obs => !cactusList.includes(obs));
+
+        finalBoss = { x: 600, hp: 15, el: document.createElement('div'), breathing: false };
+        finalBoss.el.className = 'trex stand-a';
+        finalBoss.el.style.left = '600px';
+        finalBoss.el.style.bottom = '2px';
+        finalBoss.el.style.animation = 'bossPulse 1s ease-in-out';
+
+        const hpText = document.createElement('div');
+        hpText.className = 'trex-hp';
+        hpText.innerText = 'HP: 15';
+        finalBoss.hpEl = hpText;
+        finalBoss.el.appendChild(hpText);
+
+        gameContainer.appendChild(finalBoss.el);
+    }
+
+    // 최종 보스 사망 연출
+    function triggerFinalBossDeath() {
+        if (!isPlaying) return;
+        isPlaying = false;
+        gameCleared = true;
+        clearInterval(scoreInterval);
+        clearInterval(gameLoopInterval);
+
+        finalBoss.el.remove();
+        finalBoss = null;
+
+        setTimeout(() => {
+            clearScreen.style.display = 'flex';
+        }, 1000);
+
+        setTimeout(() => {
+            clearScreen.style.display = 'none';
+            isPlaying = false;
+            msgGameover.innerText = '<p class="gameover-text">CONGRATULATIONS!</p><p class="restart-text">화면을 터치하면 재시작</p>';
+            msgGameover.style.display = 'flex';
+        }, 3000);
+    }
+
     function restoreCactus() {
         cactusList = [];
         obstacles = obstacles.filter(obs => !cactusList.includes(obs));
@@ -675,7 +859,7 @@
     }
 
     function createCactus(count) {
-        if (!isPlaying) return;
+        if (!isPlaying || finalBoss) return;
         for (let i = 0; i < count; i++) {
             const obsEl = document.createElement('div');
             obsEl.classList.add('obstacle', 'cactus');
@@ -691,12 +875,12 @@
     function createPtera() {
         if (!isPlaying) return;
         const obsEl = document.createElement('div');
-        obsEl.classList.add('obstacle', 'ptera');
+        obsEl.classList.add('obstacle', 'ptera', 'fly-a');
         obsEl.style.left = '600px';
         const flyHeight = 28;
         obsEl.style.bottom = flyHeight + 'px';
         obstaclesContainer.appendChild(obsEl);
-        obstacles.push({ el: obsEl, x: 600, hitbox: { left: -10, right: 60, bottom: flyHeight - 6, top: flyHeight + 20 } });
+        obstacles.push({ el: obsEl, x: 600, hitbox: { left: -10, right: 50, bottom: flyHeight - 6, top: flyHeight + 20 }, isPtera: true });
     }
 
     function endGame() {
@@ -704,7 +888,7 @@
         isPlaying = false;
         clearInterval(scoreInterval);
         clearInterval(gameLoopInterval);
-        dino.className = (trex ? 'armed stand-a' : 'stand-a'); 
+        dino.className = (trex || finalBoss ? 'armed stand-a' : 'stand-a'); 
 
         gameContainer.style.overflow = 'visible'; 
         dino.style.zIndex = '100';
@@ -724,6 +908,19 @@
             if (!isPlaying) msgGameover.style.display = 'flex';
         }, 1800);
     }
+
+    // 게임 루프에서 익룡 애니메이션
+    setInterval(() => {
+        document.querySelectorAll('.ptera').forEach(ptera => {
+            if (pteraFrame === 'a') {
+                ptera.classList.remove('fly-b');
+                ptera.classList.add('fly-a');
+            } else {
+                ptera.classList.remove('fly-a');
+                ptera.classList.add('fly-b');
+            }
+        });
+    }, 300);
 </script>
 
 </body>
