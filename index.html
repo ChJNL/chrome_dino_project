@@ -536,13 +536,8 @@
         const cactus = cactusList[0];
         growingCactus = cactus;
         cactus.el.classList.add('growing');
-        // 히트박스는 실제로 다 자란 뒤(애니메이션 종료 시점)에만 커지도록 함.
-        // 즉시 키우면 화면상으로는 아직 작은데 충돌 판정만 거대해져서
-        // "닿지도 않았는데 죽는" 문제가 생긴다.
-        setTimeout(() => {
-            if (cactus.eaten) return; // 다 자라기 전에 이미 먹었으면 무시
-            cactus.hitbox = { left: 2, right: 14, bottom: 0, top: 150 };
-        }, 2000);
+        cactus.growStart = performance.now();
+        cactus.isGrowing = true; // 매 프레임 히트박스를 실제 애니메이션 진행률에 맞춰 갱신하기 위한 플래그
     }
 
     // 거대해진 선인장이 사정거리 안에 들어왔는지 확인 (점프 대신 먹기가 가능한 상태)
@@ -778,7 +773,18 @@
             if (obs.x < -60) { 
                 obs.el.remove(); 
                 obstacles.splice(i, 1); 
+                cactusList = cactusList.filter(c => c !== obs); // 화면 밖으로 나간 선인장은 목록에서도 제거 (안 그러면 growCactus가 이미 사라진 선인장을 계속 타겟팅함)
+                if (growingCactus === obs) growingCactus = null;
                 continue; 
+            }
+
+            // 자라는 중인 선인장: 히트박스를 실제 시각적 애니메이션 진행률에 맞춰 매 프레임 갱신
+            // (고정된 지연시간으로 한 번에 키우면 시각적 크기와 판정이 어긋나는 순간이 생길 수 있음)
+            if (obs.isGrowing && !obs.eaten) {
+                const elapsed = performance.now() - obs.growStart;
+                const progress = Math.min(elapsed / 2000, 1);
+                obs.hitbox.top = 24 + (150 - 24) * progress;
+                if (progress >= 1) obs.isGrowing = false;
             }
 
             if (isPlaying) {
