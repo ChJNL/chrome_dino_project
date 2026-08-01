@@ -112,7 +112,6 @@
     function smashAction() {
         if (!isPlaying) return;
 
-        // 돌진 모션 연출
         isDashing = true;
         dino.classList.add('dashing');
         clearTimeout(dashAnimTimeout);
@@ -121,11 +120,9 @@
             dino.classList.remove('dashing');
         }, 150);
 
-        // 타이밍 존 (x: 40 ~ 75) 안에 있는 선인장이 있는지 확인
         let hitIndex = -1;
         for (let i = 0; i < obstacles.length; i++) {
             let obs = obstacles[i];
-            // 선인장의 현재 X 좌표가 타이밍 존에 정확히 걸쳐있는지 확인
             if (obs.x >= 35 && obs.x <= 75) {
                 hitIndex = i;
                 break;
@@ -133,24 +130,20 @@
         }
 
         if (hitIndex !== -1) {
-            // 성공: 선인장 파괴
             obstacles[hitIndex].el.remove();
             obstacles.splice(hitIndex, 1);
             score++;
             scoreDisplay.innerText = score;
             triggerEarthquake();
 
-            // 점수에 따라 난이도(속도) 상승
             if (score % 5 === 0) {
                 obstacleSpeed += 0.5;
             }
         } else {
-            // 실패: 엉뚱한 타이밍에 누르거나 존에 없는데 누름 -> 게임 오버
             endGame();
         }
     }
 
-    // 입력 이벤트 연결 (터치 및 키보드)
     gameContainer.addEventListener('touchstart', function(e) {
         e.preventDefault();
         if (!isPlaying) {
@@ -192,20 +185,17 @@
     function updateGame() {
         if (!isPlaying) return;
 
-        // 선인장 이동
         for (let i = obstacles.length - 1; i >= 0; i--) {
             let obs = obstacles[i];
             obs.x -= obstacleSpeed;
             obs.el.style.left = obs.x + 'px';
 
-            // 플레이어 위치(x=40)를 지나쳐서 완전히 왼쪽으로 벗어났는데도 파괴하지 못했다면 미스(게임 오버)
             if (obs.x < 30) {
                 endGame();
                 return;
             }
         }
 
-        // 선인장 생성 주기 조절
         spawnTimer++;
         let requiredTime = Math.max(50, 110 - (score * 3));
         if (spawnTimer >= requiredTime) {
