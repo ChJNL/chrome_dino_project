@@ -76,22 +76,12 @@
         .cactus.growing { transform-origin: bottom center; animation: cactusGrow 2s ease-out forwards; }
         @keyframes cactusGrow { from { transform: scaleY(1); } to { transform: scaleY(6.25); } }
 
-        /* 거대 선인장을 먹었을 때 쓰러지는 애니메이션 */
+        /* 거대 선인장 알아서 쓰러지는 애니메이션 */
         .cactus.falling { transform-origin: bottom center; animation: cactusFall 0.5s ease-in forwards; }
         @keyframes cactusFall {
             0% { transform: scaleY(6.25) rotate(0deg); opacity: 1; }
             40% { transform: scaleY(5) rotate(55deg) translateX(6px); opacity: 0.9; }
             100% { transform: scaleY(1) rotate(100deg) translateX(24px) translateY(10px); opacity: 0; }
-        }
-
-        /* 브라키오가 거대 선인장을 먹는 애니메이션 */
-        #dino.eating { transform-origin: bottom left; animation: eatBite 0.5s ease-in-out; }
-        @keyframes eatBite {
-            0% { transform: scaleX(1) scaleY(1) translateX(0); }
-            20% { transform: scaleX(1.15) scaleY(0.85) translateX(3px); }
-            50% { transform: scaleX(0.9) scaleY(1.1) translateX(-2px); }
-            75% { transform: scaleX(1.08) scaleY(0.92) translateX(2px); }
-            100% { transform: scaleX(1) scaleY(1) translateX(0); }
         }
         
         /* 프테라노돈 - 새로운 디자인 */
@@ -112,9 +102,6 @@
             /* 왼쪽 날개 하단 */ 8px -8px 0 var(--main-color), 4px -4px 0 var(--main-color), 0px -2px 0 var(--main-color),
             /* 오른쪽 날개 하단 */ 32px -8px 0 var(--main-color), 36px -4px 0 var(--main-color), 40px -2px 0 var(--main-color),
             /* 다리 */ 18px 4px 0 var(--main-color), 22px 4px 0 var(--main-color); }
-
-        /* 메테오 */
-        .meteor { position: absolute; width: 4px; height: 4px; background: #FF6347; z-index: 3; pointer-events: none; }
 
         /* 다양한 아기 공룡 */
         .baby-dino { position: absolute; width: 4px; height: 4px; background: transparent; z-index: 4; transform: scale(0.6); transform-origin: bottom left; }
@@ -203,7 +190,6 @@
     let currentFrame = 'a';
     let pteraFrame = 'a';
 
-    let meteors = [];
     let babyDinos = [];
     let dinoHistory = []; 
     let trex = null;
@@ -217,9 +203,6 @@
     // 별 획득 타이머
     let starActive = false;
     let starTimer = 0;
-
-    // 거대 선인장 먹기 상태
-    let isEating = false;
 
     // 지진 효과 함수
     function triggerEarthquake() {
@@ -354,11 +337,8 @@
             const gameWidth = gameContainer.clientWidth;
 
             if (touchX > gameWidth / 2) {
-                const eatable = canEatGiantCactus();
                 if (trex || finalBoss) {
                     shootGun();
-                } else if (eatable) {
-                    eatGiantCactus(eatable);
                 } else if (!isJumping && !isDucking) { 
                     isJumping = true; jumpVelocity = 10; 
                 }
@@ -381,11 +361,8 @@
 
         if (e.code === 'Space' || e.code === 'ArrowUp') {
             e.preventDefault(); 
-            const eatable = canEatGiantCactus();
             if (trex || finalBoss) {
                 shootGun();
-            } else if (eatable) {
-                eatGiantCactus(eatable);
             } else if (!isJumping && !isDucking) { 
                 isJumping = true; jumpVelocity = 10; 
             }
@@ -416,13 +393,6 @@
         nextSpawnDistance = 250;
         starActive = false;
         lastGrowScore = 0;
-        isEating = false;
-        dino.classList.remove('eating');
-
-        for (let i = meteors.length - 1; i >= 0; i--) {
-            if (meteors[i] && meteors[i].el) meteors[i].el.remove();
-        }
-        meteors = [];
 
         for (let i = babyDinos.length - 1; i >= 0; i--) {
             if (babyDinos[i] && babyDinos[i].el) babyDinos[i].el.remove();
@@ -482,8 +452,6 @@
 
                 if (score > 0 && score % 600 === 0) toggleNightMode();
                 
-                if (score > 0 && score % 150 === 0) createMeteor();
-                
                 if (score > 0 && score % 600 === 0) createBabyDino();
                 
                 // 200점마다 선인장 성장 체크
@@ -520,7 +488,7 @@
         obstacleSpeed += 0.5; 
     }
 
-    // 선인장 성장
+    // 선인장 성장 및 자동 쓰러짐
     function growCactus() {
         if (!cactusList || cactusList.length === 0) return;
         
@@ -528,43 +496,25 @@
         growingCactus = cactus;
         cactus.el.classList.add('growing');
         cactus.growStart = performance.now();
-        cactus.isGrowing = true; // 매 프레임 히트박스를 실제 애니메이션 진행률에 맞춰 갱신하기 위한 플래그
-    }
+        cactus.isGrowing = true; 
+        cactus.harmless = true; // 자라기 시작하면 닿아도 안죽는 무적 판정 부여
 
-    // 거대해진 선인장이 사정거리 안에 들어왔는지 확인 (점프 대신 먹기가 가능한 상태)
-    function canEatGiantCactus() {
-        if (!growingCactus || growingCactus.eaten || isEating || isJumping) return null;
-        const dinoRight = 40 + (isDucking ? 40 : 32);
-        const obsLeft = growingCactus.x + growingCactus.hitbox.left;
-        const EAT_RANGE = 40; // 선인장이 이 거리 안으로 들어오면 먹기 입력을 받음
-        if (obsLeft - dinoRight < EAT_RANGE && obsLeft + 20 > 0) {
-            return growingCactus;
-        }
-        return null;
-    }
-
-    // 거대 선인장을 먹는 동작: 점프 대신 실행되는 액션
-    function eatGiantCactus(cactus) {
-        cactus.eaten = true;
-        cactus.hitbox = { left: 0, right: 0, bottom: 0, top: 0 }; // 즉시 충돌 무효화 (먹는 도중 죽지 않도록)
-        isEating = true;
-
-        dino.classList.add('eating');
-        cactus.el.classList.remove('growing');
-        cactus.el.classList.add('falling');
-        score += 50; // 거대 선인장을 먹은 보상 점수
-
+        // 2초 뒤 다 자라면 자동으로 쓰러짐
         setTimeout(() => {
-            dino.classList.remove('eating');
-            isEating = false;
-        }, 500);
+            if (!isPlaying || !obstacles.includes(cactus)) return;
+            cactus.isGrowing = false;
+            cactus.el.classList.remove('growing');
+            cactus.el.classList.add('falling');
+        }, 2000);
 
+        // 2.5초 뒤 완전히 쓰러지면 화면에서 제거
         setTimeout(() => {
+            if (!isPlaying || !obstacles.includes(cactus)) return;
             cactus.el.remove();
             obstacles = obstacles.filter(o => o !== cactus);
             cactusList = cactusList.filter(o => o !== cactus);
             if (growingCactus === cactus) growingCactus = null;
-        }, 500);
+        }, 2500);
     }
 
     function createObstacle() {
@@ -587,7 +537,7 @@
         obs.style.left = '600px';
         obstaclesContainer.appendChild(obs);
 
-        const obsData = { el: obs, x: 600, y: y, type: type, hitbox: hitbox, isGrowing: false, eaten: false };
+        const obsData = { el: obs, x: 600, y: y, type: type, hitbox: hitbox, isGrowing: false, harmless: false };
         obstacles.push(obsData);
         if (type === 'cactus') {
             cactusList.push(obsData);
@@ -602,16 +552,6 @@
         cloud.style.left = '600px';
         cloudsContainer.appendChild(cloud);
         clouds.push({ el: cloud, x: 600, y: y });
-    }
-
-    function createMeteor() {
-        const meteor = document.createElement('div');
-        meteor.className = 'meteor';
-        const x = 50 + Math.random() * 400;
-        meteor.style.left = x + 'px';
-        meteor.style.top = '-20px';
-        gameContainer.appendChild(meteor);
-        meteors.push({ el: meteor, x: x, y: -20, age: 0 });
     }
 
     function createBabyDino() {
@@ -729,7 +669,7 @@
             animTimer = 0;
         }
 
-        dino.className = (trex || finalBoss ? 'armed ' : '') + (isEating ? 'eating ' : '');
+        dino.className = (trex || finalBoss ? 'armed ' : '');
         if (isJumping) dino.classList.add('stand-a'); 
         else if (isDucking) dino.classList.add(currentFrame === 'a' ? 'duck-a' : 'duck-b'); 
         else dino.classList.add(currentFrame === 'a' ? 'stand-a' : 'stand-b'); 
@@ -749,25 +689,6 @@
                 baby.el.className = 'baby-dino ' + (state.jump ? 'stand-a' : (state.duck ? (state.frame==='a'?'duck-a':'duck-b') : (state.frame==='a'?'stand-a':'stand-b')));
             }
         });
-
-        // --- 메테오 이동 (아래로 내려가면서 커짐) ---
-        for (let i = meteors.length - 1; i >= 0; i--) {
-            let m = meteors[i];
-            m.y += 4; // 아래로 이동
-            m.age++;
-            
-            // 크기 점점 커짐
-            const scale = 1 + (m.age / 60) * 7;
-            m.el.style.left = m.x + 'px';
-            m.el.style.top = m.y + 'px';
-            m.el.style.transform = `scale(${Math.max(0.5, Math.min(scale, 8))})`;
-
-            // 화면 밖으로 나가면 삭제
-            if (m.y > 160) { 
-                m.el.remove(); 
-                meteors.splice(i, 1); 
-            }
-        }
 
         // --- 불 파티클 ---
         if (finalBoss && finalBoss.breathing) {
@@ -877,8 +798,8 @@
                 obs.hitbox.top = 24 * (1 + 5.25 * progress);
             }
 
-            // 충돌 판정
-            if (!starActive && !obs.eaten && !isEating) {
+            // 충돌 판정 (별 무적, 커진 선인장 무적 고려)
+            if (!starActive && !obs.harmless) {
                 const dinoRight = 40 + (isDucking ? 40 : 32);
                 const dinoLeft = 40;
                 const dinoTop = dinoY + (isDucking ? 16 : 32);
