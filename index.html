@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>크롬 스타일 브라키오 게임 - 완벽 최종 수정 버전</title>
+    <title>타이밍 돌진 파괴 게임</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
 
@@ -16,149 +16,76 @@
 
         @keyframes shake {
             0%, 100% { transform: translateX(0px) translateY(0px); }
-            10% { transform: translateX(-6px) translateY(3px); }
-            20% { transform: translateX(6px) translateY(-3px); }
-            30% { transform: translateX(-6px) translateY(3px); }
+            20% { transform: translateX(-6px) translateY(3px); }
             40% { transform: translateX(6px) translateY(-3px); }
-            50% { transform: translateX(-3px) translateY(2px); }
-            60% { transform: translateX(3px) translateY(-2px); }
-            70% { transform: translateX(-3px) translateY(2px); }
+            60% { transform: translateX(-3px) translateY(2px); }
             80% { transform: translateX(3px) translateY(-2px); }
-            90% { transform: translateX(-1px) translateY(0px); }
         }
         
-        #game.shake { animation: shake 0.4s ease-in-out; }
+        #game.shake { animation: shake 0.3s ease-in-out; }
 
         #score-area { position: absolute; top: 10px; right: 10px; color: var(--main-color); font-size: 18px; font-weight: bold; z-index: 10; }
         #hi-score { margin-right: 15px; color: var(--sub-color); }
 
-        #star-timer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; z-index: 25; text-align: center; }
-        .star-icon { font-size: 48px; margin-bottom: 10px; }
-        .star-text { color: var(--main-color); font-size: 24px; font-weight: bold; }
+        /* 타이밍 존 표시선 */
+        #timing-zone { position: absolute; left: 45px; bottom: 0; width: 35px; height: 100px; border-left: 2px dashed #ff4500; border-right: 2px dashed #ff4500; background: rgba(255, 69, 0, 0.05); z-index: 2; pointer-events: none; }
 
-        #clear-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); display: none; z-index: 100; flex-direction: column; justify-content: center; align-items: center; }
-        .clear-text { color: white; font-size: 64px; font-weight: bold; letter-spacing: 10px; text-shadow: 0 0 20px yellow; animation: clearPulse 0.6s infinite; }
-        @keyframes clearPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-
-        .stars-container { position: absolute; width: 100%; height: 100%; z-index: 0; display: none; }
-        body.night-mode .stars-container { display: block; }
-
-        .cloud { position: absolute; width: 4px; height: 4px; background: transparent; box-shadow: 12px 0px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color), 4px 4px 0 var(--main-color), 8px 4px 0 var(--main-color), 12px 4px 0 var(--main-color), 16px 4px 0 var(--main-color), 20px 4px 0 var(--main-color), 24px 4px 0 var(--main-color), 28px 4px 0 var(--main-color), 0px 8px 0 var(--main-color), 4px 8px 0 var(--main-color), 8px 8px 0 var(--main-color), 12px 8px 0 var(--main-color), 16px 8px 0 var(--main-color), 20px 8px 0 var(--main-color), 24px 8px 0 var(--main-color), 8px 12px 0 var(--main-color), 12px 12px 0 var(--main-color); opacity: 0.6; z-index: 1; }
-
-        #dino { position: absolute; left: 40px; bottom: 2px; width: 4px; height: 4px; background: transparent; z-index: 5; transition: transform 0.1s; }
-        .dashing { transform: translateX(30px) skewX(-15deg) !important; filter: drop-shadow(0 0 8px #ffaa00); }
-
-        .gun { display: none; position: absolute; width: 14px; height: 6px; background: var(--main-color); bottom: 12px; left: 32px; border-radius: 0 3px 3px 0; z-index: 6; }
-        .armed .gun { display: block; }
-        .bullet { position: absolute; width: 8px; height: 4px; background: #ffaa00; border-radius: 2px; z-index: 6; box-shadow: 0 0 4px #ff0000; }
+        #dino { position: absolute; left: 40px; bottom: 2px; width: 4px; height: 4px; background: transparent; z-index: 5; transition: transform 0.05s; }
+        .dashing { transform: translateX(25px) skewX(-15deg) !important; filter: drop-shadow(0 0 8px #ffaa00); }
 
         .stand-a { box-shadow: 36px -32px 0 var(--main-color), 40px -32px 0 var(--main-color), 44px -32px 0 var(--main-color), 36px -28px 0 var(--main-color), 40px -28px 0 var(--main-color), 36px -24px 0 var(--main-color), 36px -20px 0 var(--main-color), 32px -16px 0 var(--main-color), 36px -16px 0 var(--main-color), 28px -12px 0 var(--main-color), 32px -12px 0 var(--main-color), 12px -8px 0 var(--main-color), 16px -8px 0 var(--main-color), 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 12px -4px 0 var(--main-color), 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 24px -4px 0 var(--main-color), 28px -4px 0 var(--main-color), 4px 0px 0 var(--main-color), 8px 0px 0 var(--main-color), 12px 0px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color), 24px 0px 0 var(--main-color), 8px 4px 0 var(--main-color), 24px 4px 0 var(--main-color); }
         .stand-b { box-shadow: 36px -32px 0 var(--main-color), 40px -32px 0 var(--main-color), 44px -32px 0 var(--main-color), 36px -28px 0 var(--main-color), 40px -28px 0 var(--main-color), 36px -24px 0 var(--main-color), 36px -20px 0 var(--main-color), 32px -16px 0 var(--main-color), 36px -16px 0 var(--main-color), 28px -12px 0 var(--main-color), 32px -12px 0 var(--main-color), 12px -8px 0 var(--main-color), 16px -8px 0 var(--main-color), 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 12px -4px 0 var(--main-color), 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 24px -4px 0 var(--main-color), 28px -4px 0 var(--main-color), 4px 0px 0 var(--main-color), 8px 0px 0 var(--main-color), 12px 0px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color), 24px 0px 0 var(--main-color), 12px 4px 0 var(--main-color), 20px 4px 0 var(--main-color); }
-        .duck-a { box-shadow: 12px -8px 0 var(--main-color), 16px -8px 0 var(--main-color), 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color), 32px -8px 0 var(--main-color), 36px -8px 0 var(--main-color), 40px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 12px -4px 0 var(--main-color), 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 24px -4px 0 var(--main-color), 28px -4px 0 var(--main-color), 32px -4px 0 var(--main-color), 4px 0px 0 var(--main-color), 8px 0px 0 var(--main-color), 12px 0px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color), 24px 0px 0 var(--main-color), 28px 0px 0 var(--main-color), 8px 4px 0 var(--main-color), 24px 4px 0 var(--main-color); }
-        .duck-b { box-shadow: 12px -8px 0 var(--main-color), 16px -8px 0 var(--main-color), 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color), 32px -8px 0 var(--main-color), 36px -8px 0 var(--main-color), 40px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 12px -4px 0 var(--main-color), 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 24px -4px 0 var(--main-color), 28px -4px 0 var(--main-color), 32px -4px 0 var(--main-color), 4px 0px 0 var(--main-color), 8px 0px 0 var(--main-color), 12px -4px 0 var(--main-color), 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 24px -4px 0 var(--main-color), 28px -4px 0 var(--main-color), 12px 4px 0 var(--main-color), 20px 4px 0 var(--main-color); }
 
         .obstacle { position: absolute; background: transparent; z-index: 4; }
-        .cactus { bottom: 2px; width: 4px; height: 4px; box-shadow: 8px -24px 0 var(--main-color), 8px -20px 0 var(--main-color), 0px -16px 0 var(--main-color), 8px -16px 0 var(--main-color), 16px -16px 0 var(--main-color), 0px -12px 0 var(--main-color), 8px -12px 0 var(--main-color), 16px -12px 0 var(--main-color), 0px -8px 0 var(--main-color), 8px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 8px 0px 0 var(--main-color); transition: all 0.2s; }
-        
-        .ptera { width: 4px; height: 4px; position: relative; }
-        .ptera.fly-a { box-shadow: 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color), 32px -8px 0 var(--main-color), 36px -8px 0 var(--main-color), 24px -12px 0 var(--main-color), 20px -12px 0 var(--main-color), 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color), 8px -10px 0 var(--main-color), 4px -8px 0 var(--main-color), 0px -6px 0 var(--main-color), 32px -10px 0 var(--main-color), 36px -8px 0 var(--main-color), 40px -6px 0 var(--main-color), 18px 4px 0 var(--main-color), 22px 4px 0 var(--main-color); }
-        .ptera.fly-b { box-shadow: 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color), 32px -8px 0 var(--main-color), 36px -8px 0 var(--main-color), 24px -12px 0 var(--main-color), 20px -12px 0 var(--main-color), 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color), 8px -8px 0 var(--main-color), 4px -4px 0 var(--main-color), 0px -2px 0 var(--main-color), 32px -8px 0 var(--main-color), 36px -4px 0 var(--main-color), 40px -2px 0 var(--main-color), 18px 4px 0 var(--main-color), 22px 4px 0 var(--main-color); }
-
-        .baby-dino { position: absolute; width: 4px; height: 4px; background: transparent; z-index: 4; transform: scale(0.6); transform-origin: bottom left; transition: transform 0.1s; }
-        .trex { position: absolute; width: 4px; height: 4px; background: transparent; z-index: 15; transform: scale(1.6) scaleX(-1); transform-origin: bottom right; }
-        .trex-hp { position: absolute; top: -25px; left: -15px; color: red; font-size: 10px; font-weight: bold; transform: scaleX(-1); width: 60px; pointer-events: none; }
-        .fire { position: absolute; width: 8px; height: 8px; background: #FF4500; border-radius: 50%; z-index: 7; box-shadow: 0 0 8px #FF8C00; }
+        .cactus { bottom: 2px; width: 4px; height: 4px; box-shadow: 8px -24px 0 var(--main-color), 8px -20px 0 var(--main-color), 0px -16px 0 var(--main-color), 8px -16px 0 var(--main-color), 16px -16px 0 var(--main-color), 0px -12px 0 var(--main-color), 8px -12px 0 var(--main-color), 16px -12px 0 var(--main-color), 0px -8px 0 var(--main-color), 8px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 8px 0px 0 var(--main-color); }
 
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--main-color); font-size: 16px; font-weight: bold; background-color: var(--bg-color); z-index: 20; text-align: center; padding: 10px; }
         .msg-gameover { display: none; }
-        .gameover-text { font-size: 24px; letter-spacing: 5px; margin-bottom: 10px; }
+        .gameover-text { font-size: 24px; letter-spacing: 5px; margin-bottom: 10px; color: #ff4500; }
         .restart-text { font-size: 14px; color: var(--sub-color); }
     </style>
 </head>
 <body>
 
 <div id="game">
-    <div class="stars-container" id="stars-container"></div>
-    <div id="clouds"></div>
-    <div id="clear-screen">
-        <div class="clear-text">CLEAR</div>
-    </div>
-    <div id="star-timer">
-        <div class="star-icon">⭐</div>
-        <div class="star-text" id="timer-text">3</div>
-    </div>
+    <div id="timing-zone"></div>
     <div id="score-area">
-        <span id="hi-score">HI 00000</span>
-        <span id="score">00000</span>
+        <span id="hi-score">HI 0</span>
+        <span id="score">0</span>
     </div>
-    <div id="dino" class="stand-a">
-        <div class="gun"></div>
-    </div>
+    <div id="dino" class="stand-a"></div>
     <div id="obstacles"></div>
     <div class="overlay msg-start" id="msg-start">
-        <p>📱 왼쪽(숙이기) / 오른쪽(점프 및 사격)</p>
-        <p style="font-size: 12px; margin-top: 5px; color: #747474;">⌨️ PC: ↑(점프/사격) / ↓(숙이기)</p>
-        <p style="font-size: 12px; margin-top: 3px; color: #ff8c00;">⌨️ 돌진(선인장 파괴): C 키</p>
-        <p style="font-size: 13px; margin-top: 10px; color: var(--main-color); background: rgba(0,0,0,0.05); padding: 5px 10px; border-radius: 4px;">[ 화면을 터치하면 시작합니다 ]</p>
+        <p>🎯 타이밍 돌진 파괴 게임</p>
+        <p style="font-size: 13px; margin-top: 8px; color: #ff4500;">선인장이 주황색 존(Zone)에 들어올 때</p>
+        <p style="font-size: 14px; margin-top: 3px; font-weight: bold;">[ C 키 ] 또는 [ 화면 터치 ] 로 돌진해 파괴하세요!</p>
+        <p style="font-size: 12px; margin-top: 15px; background: rgba(0,0,0,0.05); padding: 5px 10px; border-radius: 4px;">[ 화면을 터치하면 시작합니다 ]</p>
     </div>
     <div class="overlay msg-gameover" id="msg-gameover">
-        <p class="gameover-text">GAME OVER</p>
+        <p class="gameover-text">MISSED / CRASH!</p>
         <p class="restart-text">화면을 터치하면 재시작</p>
     </div>
 </div>
 
 <script>
     const gameContainer = document.getElementById('game');
-    const body = document.body;
     const dino = document.getElementById('dino');
     const scoreDisplay = document.getElementById('score');
     const hiScoreDisplay = document.getElementById('hi-score');
     const obstaclesContainer = document.getElementById('obstacles');
-    const cloudsContainer = document.getElementById('clouds');
-    const starsContainer = document.getElementById('stars-container');
     const msgStart = document.getElementById('msg-start');
     const msgGameover = document.getElementById('msg-gameover');
-    const starTimerUI = document.getElementById('star-timer');
-    const timerText = document.getElementById('timer-text');
-    const clearScreen = document.getElementById('clear-screen');
 
     let isPlaying = false;
     let score = 0;
     let hiScore = 0;
-    let scoreInterval;
     let gameLoopInterval;
-    let isNight = false;
-    let gameCleared = false;
-    
-    let isJumping = false;
-    let isDucking = false; 
-    let isDashing = false; 
-    let dashTimer = 0;     
-    let dashGrace = 0;     
-    
-    let dinoY = 0;
-    let jumpVelocity = 0;
-    const gravity = 0.6; 
-
+    let spawnTimer = 0;
     let obstacles = [];
-    let clouds = [];
-    let obstacleSpeed = 4; 
-    const cloudSpeed = 1; 
-    let nextSpawnDistance = 300; 
-
-    let animTimer = 0;
-    let currentFrame = 'a';
-    let pteraFrame = 'a';
-
-    let babyDinos = [];
-    let dinoHistory = []; 
-    let trex = null;
-    let finalBoss = null;
-    let bullets = [];
-    let fires = [];
-
-    let starActive = false;
-    let starTimer = 0;
+    let obstacleSpeed = 3.5;
+    
+    let isDashing = false;
+    let dashAnimTimeout = null;
 
     function triggerEarthquake() {
         gameContainer.classList.remove('shake');
@@ -166,514 +93,125 @@
         gameContainer.classList.add('shake');
     }
 
-    function activateStar() {
-        starActive = true;
-        starTimer = 3;
-        starTimerUI.style.display = 'flex';
+    function startGame() {
+        isPlaying = true;
+        score = 0;
+        obstacleSpeed = 3.5;
+        spawnTimer = 0;
+        obstacles = [];
+        obstaclesContainer.innerHTML = '';
         
-        let countdown = 3;
-        const countdownInterval = setInterval(() => {
-            countdown--;
-            timerText.innerText = Math.max(0, countdown);
-            if (countdown < 0) {
-                clearInterval(countdownInterval);
-                starActive = false;
-                starTimerUI.style.display = 'none';
-            }
-        }, 1000);
+        msgStart.style.display = 'none';
+        msgGameover.style.display = 'none';
+        scoreDisplay.innerText = '0';
+
+        clearInterval(gameLoopInterval);
+        gameLoopInterval = setInterval(updateGame, 1000 / 60);
     }
 
-    function createStars() {
-        starsContainer.innerHTML = '';
-        const starPositions = [
-            {x: 50, y: 30}, {x: 120, y: 20}, {x: 200, y: 45}, {x: 280, y: 25},
-            {x: 350, y: 40}, {x: 420, y: 35}, {x: 480, y: 20}, {x: 550, y: 50}
-        ];
-
-        starPositions.forEach((pos, idx) => {
-            const star = document.createElement('div');
-            star.style.position = 'absolute';
-            star.style.width = '4px';
-            star.style.height = '4px';
-            star.style.background = 'transparent';
-            star.style.left = pos.x + 'px';
-            star.style.top = pos.y + 'px';
-            star.style.zIndex = '1';
-            star.style.boxShadow = `0px 0px 0px #e8eaed, 4px 0px 0px #e8eaed, -4px 0px 0px #e8eaed, 0px 4px 0px #e8eaed, 0px -4px 0px #e8eaed`;
-            star.style.animation = `starMove ${15 + idx}s linear infinite`;
-            starsContainer.appendChild(star);
-        });
-
-        const moon = document.createElement('div');
-        moon.style.position = 'absolute';
-        moon.style.width = '4px';
-        moon.style.height = '4px';
-        moon.style.background = 'transparent';
-        moon.style.left = '520px';
-        moon.style.top = '25px';
-        moon.style.zIndex = '1';
-        moon.style.boxShadow = `0px 0px 0px #fffacd, 4px 0px 0px #fffacd, 8px 0px 0px #fffacd, -4px 0px 0px #fffacd, -8px 0px 0px #fffacd, 0px 4px 0px #fffacd, 4px 4px 0px #fffacd, 8px 4px 0px #fffacd, -4px 4px 0px #fffacd, -8px 4px 0px #fffacd, 0px -4px 0px #fffacd, 4px -4px 0px #fffacd, 8px -4px 0px #fffacd, -4px -4px 0px #fffacd, -8px -4px 0px #fffacd`;
-        moon.style.animation = 'moonMove 720s linear infinite';
-        starsContainer.appendChild(moon);
-
-        if (!document.getElementById('night-animations')) {
-            const style = document.createElement('style');
-            style.id = 'night-animations';
-            style.textContent = `
-                @keyframes starMove { 0% { transform: translateX(0px); } 100% { transform: translateX(-700px); } }
-                @keyframes moonMove { 0% { left: 520px; } 100% { left: -100px; } }
-            `;
-            document.head.appendChild(style);
-        }
-    }
-
-    function shootGun() {
+    function smashAction() {
         if (!isPlaying) return;
-        const bullet = document.createElement('div');
-        bullet.className = 'bullet';
-        let bX = 40 + (isDashing ? 70 : 44);
-        let bY = dinoY + 14; 
-        bullet.style.left = bX + 'px';
-        bullet.style.bottom = bY + 'px';
-        gameContainer.appendChild(bullet);
-        bullets.push({ el: bullet, x: bX, y: bY });
-    }
 
-    gameContainer.addEventListener('touchstart', function(e) {
-        if (!isPlaying && msgStart.style.display !== 'none') { e.preventDefault(); startGame(); return; }
-        if (!isPlaying && msgGameover.style.display !== 'none') { e.preventDefault(); startGame(); return; }
+        // 돌진 모션 연출
+        isDashing = true;
+        dino.classList.add('dashing');
+        clearTimeout(dashAnimTimeout);
+        dashAnimTimeout = setTimeout(() => {
+            isDashing = false;
+            dino.classList.remove('dashing');
+        }, 150);
 
-        if(isPlaying) {
-            e.preventDefault();
-            const touchX = e.touches[0].clientX - gameContainer.getBoundingClientRect().left;
-            const gameWidth = gameContainer.clientWidth;
-
-            if (touchX > gameWidth / 2) {
-                if (trex || finalBoss) {
-                    shootGun();
-                } else if (!isJumping && !isDucking) { 
-                    isJumping = true; jumpVelocity = 10; 
-                }
-            } else {
-                if (!isJumping && !trex && !finalBoss) { isDucking = true; } 
+        // 타이밍 존 (x: 40 ~ 75) 안에 있는 선인장이 있는지 확인
+        let hitIndex = -1;
+        for (let i = 0; i < obstacles.length; i++) {
+            let obs = obstacles[i];
+            // 선인장의 현재 X 좌표가 타이밍 존에 정확히 걸쳐있는지 확인
+            if (obs.x >= 35 && obs.x <= 75) {
+                hitIndex = i;
+                break;
             }
         }
-    }, { passive: false });
 
-    gameContainer.addEventListener('touchend', function(e) {
-        if(isPlaying) { e.preventDefault(); isDucking = false; }
+        if (hitIndex !== -1) {
+            // 성공: 선인장 파괴
+            obstacles[hitIndex].el.remove();
+            obstacles.splice(hitIndex, 1);
+            score++;
+            scoreDisplay.innerText = score;
+            triggerEarthquake();
+
+            // 점수에 따라 난이도(속도) 상승
+            if (score % 5 === 0) {
+                obstacleSpeed += 0.5;
+            }
+        } else {
+            // 실패: 엉뚱한 타이밍에 누르거나 존에 없는데 누름 -> 게임 오버
+            endGame();
+        }
+    }
+
+    // 입력 이벤트 연결 (터치 및 키보드)
+    gameContainer.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        if (!isPlaying) {
+            startGame();
+        } else {
+            smashAction();
+        }
     }, { passive: false });
 
     window.addEventListener('keydown', function(e) {
-        if (!isPlaying) {
-            if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); startGame(); }
-            return;
-        }
-
-        if (e.code === 'Space' || e.code === 'ArrowUp') {
-            e.preventDefault(); 
-            if (trex || finalBoss) {
-                shootGun();
-            } else if (!isJumping && !isDucking) { 
-                isJumping = true; jumpVelocity = 10; 
-            }
-        } else if (e.code === 'ArrowDown') {
+        if (e.code === 'KeyC' || e.key === 'c' || e.key === 'C' || e.code === 'Space') {
             e.preventDefault();
-            if (!isJumping && !trex && !finalBoss) { isDucking = true; }
-        } else if (e.code === 'KeyC' || e.key === 'c' || e.key === 'C') {
-            e.preventDefault();
-            if (!isDashing && !trex && !finalBoss) {
-                isDashing = true;
-                dashTimer = 22; 
+            if (!isPlaying) {
+                startGame();
+            } else {
+                smashAction();
             }
         }
     });
 
-    window.addEventListener('keyup', function(e) {
-        if (e.code === 'ArrowDown') { e.preventDefault(); isDucking = false; }
-    });
-
-    function startGame() {
-        isPlaying = true;
-        gameCleared = false;
-        score = 0;
-        dinoY = 0;
-        isJumping = false;
-        isDucking = false; 
-        isDashing = false;
-        dashTimer = 0;
-        dashGrace = 0;
-        jumpVelocity = 0;
-        obstacles = [];
-        clouds = [];
-        isNight = false;
-        obstacleSpeed = 4; 
-        nextSpawnDistance = 250;
-        starActive = false;
-
-        babyDinos.forEach(b => { if (b && b.el) b.el.remove(); });
-        babyDinos = [];
-        bullets.forEach(b => { if (b && b.el) b.el.remove(); });
-        bullets = [];
-        fires.forEach(f => { if (f && f.el) f.el.remove(); });
-        fires = [];
-
-        if(trex && trex.el) { trex.el.remove(); trex = null; dino.classList.remove('armed'); }
-        if(finalBoss && finalBoss.el) { finalBoss.el.remove(); finalBoss = null; }
-        
-        dinoHistory = [];
-        dino.style.transform = 'none';
-        dino.style.left = '40px';
-        dino.style.bottom = '2px';
-        dino.style.top = 'auto';
-        dino.style.zIndex = '5';
-        gameContainer.style.overflow = 'hidden';
-        dino.className = 'stand-a';
-
-        obstaclesContainer.innerHTML = '';
-        cloudsContainer.innerHTML = '';
-        starsContainer.innerHTML = '';
-        starTimerUI.style.display = 'none';
-        clearScreen.style.display = 'none';
-        body.classList.remove('night-mode');
-        msgStart.style.display = 'none';
-        msgGameover.style.display = 'none';
-        scoreDisplay.innerText = '00000';
-
-        clearInterval(scoreInterval);
+    function endGame() {
+        isPlaying = false;
         clearInterval(gameLoopInterval);
-
-        setTimeout(() => {
-            scoreInterval = setInterval(() => {
-                if (!isPlaying) return;
-                score++;
-                scoreDisplay.innerText = String(score).padStart(5, '0');
-
-                if (score > 0 && score % 600 === 0) toggleNightMode();
-                if (score > 0 && score % 600 === 0) createBabyDino();
-                if (score === 1000 && !finalBoss && !trex) createFinalBoss();
-                if (score > 0 && score % 600 === 0 && Math.random() < 0.5) activateStar();
-            }, 50);
-
-            gameLoopInterval = setInterval(updateGame, 1000 / 60);
-        }, 100);
-    }
-
-    function toggleNightMode() {
-        isNight = !isNight;
-        if (isNight) {
-            body.classList.add('night-mode');
-            createStars();
-        } else {
-            body.classList.remove('night-mode');
-            starsContainer.innerHTML = '';
+        msgGameover.style.display = 'flex';
+        if (score > hiScore) {
+            hiScore = score;
+            hiScoreDisplay.innerText = 'HI ' + hiScore;
         }
-        obstacleSpeed += 0.5; 
     }
 
     function createObstacle() {
         const obs = document.createElement('div');
-        obs.className = 'obstacle';
-        let type = 'cactus';
-        // 선인장 히트박스를 매우 널널하게(안쪽으로 좁게) 설정하여 절대 억울하게 죽지 않도록 함
-        let hitbox = { left: 4, right: 14, bottom: 0, top: 18 };
-        let y = 0;
-
-        if (score > 300 && Math.random() < 0.3) {
-            type = 'ptera';
-            obs.className += ' ptera fly-a';
-            y = Math.random() > 0.5 ? 15 : 35;
-            hitbox = { left: 6, right: 34, bottom: y + 2, top: y + 14 };
-            obs.style.bottom = y + 'px';
-        } else {
-            obs.className += ' cactus';
-        }
-
+        obs.className = 'obstacle cactus';
         obs.style.left = '600px';
         obstaclesContainer.appendChild(obs);
-        obstacles.push({ el: obs, x: 600, y: y, type: type, hitbox: hitbox });
-    }
-
-    function createCloud() {
-        const cloud = document.createElement('div');
-        cloud.className = 'cloud';
-        const y = 50 + Math.random() * 80;
-        cloud.style.bottom = y + 'px';
-        cloud.style.left = '600px';
-        cloudsContainer.appendChild(cloud);
-        clouds.push({ el: cloud, x: 600, y: y });
-    }
-
-    function createBabyDino() {
-        const baby = document.createElement('div');
-        baby.className = 'baby-dino stand-a';
-        baby.style.left = '600px';
-        baby.style.bottom = '2px';
-        gameContainer.appendChild(baby);
-        babyDinos.push({ el: baby });
-    }
-
-    function createFire(x, y) {
-        const fire = document.createElement('div');
-        fire.className = 'fire';
-        fire.style.left = x + 'px';
-        fire.style.top = y + 'px';
-        gameContainer.appendChild(fire);
-        fires.push({ el: fire, x: x, y: y, vx: -2 - Math.random() * 3, life: 30 });
-    }
-
-    function createTrex() {
-        if (trex || finalBoss) return;
-        obstaclesContainer.style.display = 'none';
-
-        const t = document.createElement('div');
-        t.className = 'trex stand-a';
-        t.style.left = '600px';
-        t.style.bottom = '2px';
-
-        const hpEl = document.createElement('div');
-        hpEl.className = 'trex-hp';
-        hpEl.innerText = 'HP: 5';
-        t.appendChild(hpEl);
-
-        gameContainer.appendChild(t);
-        trex = { el: t, x: 600, hp: 5, hpEl: hpEl };
-    }
-
-    function createFinalBoss() {
-        if (finalBoss || trex) return;
-        obstaclesContainer.style.display = 'none';
-        triggerEarthquake();
-
-        const t = document.createElement('div');
-        t.className = 'trex stand-a';
-        t.style.left = '600px';
-        t.style.bottom = '2px';
-        t.style.transform = 'scale(2.5) scaleX(-1)';
-
-        const hpEl = document.createElement('div');
-        hpEl.className = 'trex-hp';
-        hpEl.innerText = 'HP: 20';
-        hpEl.style.fontSize = '8px';
-        t.appendChild(hpEl);
-
-        gameContainer.appendChild(t);
-        finalBoss = { el: t, x: 600, hp: 20, hpEl: hpEl, breathing: false };
-    }
-
-    function restoreCactus() {
-        obstaclesContainer.style.display = 'block';
-        obstacles.forEach(o => o.el.remove());
-        obstacles = [];
-        nextSpawnDistance = 200;
-    }
-
-    function triggerFinalBossDeath() {
-        finalBoss.el.remove();
-        finalBoss = null;
-        score += 1000;
-        gameCleared = true;
-        isPlaying = false;
-        clearInterval(gameLoopInterval);
-        clearInterval(scoreInterval);
-        clearScreen.style.display = 'flex';
-    }
-
-    function endGame() {
-        isPlaying = false;
-        clearInterval(scoreInterval);
-        clearInterval(gameLoopInterval);
-        dino.className = 'duck-a';
-        msgGameover.style.display = 'flex';
-        if (score > hiScore) {
-            hiScore = score;
-            hiScoreDisplay.innerText = 'HI ' + String(hiScore).padStart(5, '0');
-        }
+        obstacles.push({ el: obs, x: 600 });
     }
 
     function updateGame() {
         if (!isPlaying) return;
 
-        if (isDashing) {
-            dashTimer--;
-            if (dashTimer <= 0) {
-                isDashing = false;
-                dashGrace = 12; // 돌진 종료 직후 12프레임 무적 유예 시간
-            }
-        } else if (dashGrace > 0) {
-            dashGrace--;
-        }
-
-        if (isJumping) {
-            dinoY += jumpVelocity;
-            jumpVelocity -= gravity; 
-
-            if (dinoY <= 0) {
-                dinoY = 0;
-                isJumping = false;
-                jumpVelocity = 0;
-            }
-        }
-        dino.style.bottom = (2 + dinoY) + 'px';
-
-        animTimer++;
-        if (animTimer > 8) { 
-            currentFrame = (currentFrame === 'a') ? 'b' : 'a';
-            pteraFrame = (pteraFrame === 'a') ? 'b' : 'a';
-            animTimer = 0;
-        }
-
-        let dinoClasses = '';
-        if (trex || finalBoss) dinoClasses += 'armed ';
-        if (isJumping) dinoClasses += 'stand-a ';
-        else if (isDucking) dinoClasses += (currentFrame === 'a' ? 'duck-a ' : 'duck-b ');
-        else dinoClasses += (currentFrame === 'a' ? 'stand-a ' : 'stand-b ');
-        if (isDashing) dinoClasses += 'dashing ';
-        dino.className = dinoClasses.trim();
-
-        dinoHistory.unshift({ y: dinoY, duck: isDucking, jump: isJumping, frame: currentFrame, dash: isDashing });
-        if (dinoHistory.length > 300) dinoHistory.pop();
-
-        babyDinos.forEach((baby, index) => {
-            let delay = (index + 1) * 15; 
-            if (delay >= dinoHistory.length) delay = dinoHistory.length - 1;
-            let state = dinoHistory[delay];
-            if (state) {
-                baby.el.style.bottom = (2 + state.y) + 'px';
-                const dashOffset = state.dash ? 30 : 0;
-                baby.el.style.left = (40 - (index + 1) * 22 + dashOffset) + 'px'; 
-                
-                let bClass = 'baby-dino ';
-                if (state.jump) bClass += 'stand-a ';
-                else if (state.duck) bClass += (state.frame==='a' ? 'duck-a ' : 'duck-b ');
-                else bClass += (state.frame==='a' ? 'stand-a ' : 'stand-b ');
-                if (state.dash) bClass += 'dashing ';
-                baby.el.className = bClass.trim();
-            }
-        });
-
-        if (finalBoss && finalBoss.breathing) {
-            for (let i = fires.length - 1; i >= 0; i--) {
-                let f = fires[i];
-                f.x += f.vx;
-                f.y -= 2;
-                f.life--;
-                f.el.style.left = f.x + 'px';
-                f.el.style.top = f.y + 'px';
-                f.el.style.opacity = f.life / 30;
-                if (f.life <= 0) { f.el.remove(); fires.splice(i, 1); }
-            }
-        }
-
-        for (let i = bullets.length - 1; i >= 0; i--) {
-            let b = bullets[i];
-            b.x += 10;
-            b.el.style.left = b.x + 'px';
-            if (b.x > 600) { b.el.remove(); bullets.splice(i, 1); continue; }
-            
-            if (trex && b.x > trex.x && b.x < trex.x + 40) {
-                trex.hp--;
-                trex.hpEl.innerText = 'HP: ' + trex.hp;
-                trex.el.style.filter = 'drop-shadow(0 0 5px red) brightness(2)';
-                setTimeout(() => { if(trex) trex.el.style.filter = 'none'; }, 100);
-                b.el.remove(); bullets.splice(i, 1);
-                if (trex.hp <= 0) { trex.el.remove(); trex = null; dino.classList.remove('armed'); score += 200; restoreCactus(); return; }
-            }
-
-            if (finalBoss && b.x > finalBoss.x && b.x < finalBoss.x + 40) {
-                finalBoss.hp--;
-                finalBoss.hpEl.innerText = 'HP: ' + finalBoss.hp;
-                finalBoss.el.style.filter = 'drop-shadow(0 0 5px red) brightness(2)';
-                setTimeout(() => { if(finalBoss) finalBoss.el.style.filter = 'none'; }, 100);
-                b.el.remove(); bullets.splice(i, 1);
-                if (finalBoss.hp <= 0) { triggerFinalBossDeath(); }
-            }
-        }
-
-        if (trex && isPlaying) {
-            trex.x -= obstacleSpeed * 0.4; 
-            trex.el.style.left = trex.x + 'px';
-            trex.el.className = 'trex ' + (currentFrame === 'a' ? 'stand-a' : 'stand-b'); 
-            if (trex.x < 40 + 32) { endGame(); return; }
-        }
-
-        if (finalBoss && isPlaying) {
-            finalBoss.x -= obstacleSpeed * 0.3;
-            finalBoss.el.style.left = finalBoss.x + 'px';
-            finalBoss.el.className = 'trex ' + (currentFrame === 'a' ? 'stand-a' : 'stand-b');
-            if (Math.random() < 0.1) {
-                finalBoss.breathing = true;
-                createFire(finalBoss.x, 20 + Math.random() * 20);
-            } else {
-                finalBoss.breathing = false;
-            }
-            if (finalBoss.x < 40 + 32) { endGame(); return; }
-        }
-
-        // --- 충돌 및 돌진 파괴 판정 (인셋 적용으로 억울한 죽음 원천 차단) ---
+        // 선인장 이동
         for (let i = obstacles.length - 1; i >= 0; i--) {
             let obs = obstacles[i];
             obs.x -= obstacleSpeed;
             obs.el.style.left = obs.x + 'px';
 
-            if (obs.type === 'ptera') {
-                obs.el.className = 'obstacle ptera fly-' + pteraFrame;
-            }
-
-            if (!starActive && dashGrace === 0) {
-                const dashOffset = isDashing ? 30 : 0;
-                // 플레이어 박스를 안쪽으로 6px씩 줄여서 관대한(Forgiving) 판정 구현
-                const dinoRight = 40 + dashOffset + (isDucking ? 36 : 28);
-                const dinoLeft = 40 + dashOffset + 6;
-                const dinoTop = dinoY + (isDucking ? 14 : 28);
-                const dinoBottom = dinoY + 2;
-
-                const obsLeft = obs.x + obs.hitbox.left;
-                const obsRight = obs.x + obs.hitbox.right;
-                const obsTop = obs.y + obs.hitbox.top;
-                const obsBottom = obs.y;
-
-                if (dinoRight > obsLeft && dinoLeft < obsRight && dinoBottom < obsTop && dinoTop > obsBottom) {
-                    if (isDashing && obs.type === 'cactus') {
-                        obs.el.remove();
-                        obstacles.splice(i, 1);
-                        triggerEarthquake();
-                        score += 50; 
-                        continue;
-                    } else if (obs.type === 'ptera' && dinoBottom > obsTop - 10 && jumpVelocity < 0) {
-                        obs.el.remove();
-                        obstacles.splice(i, 1);
-                        score += 100;
-                        jumpVelocity = 8;
-                        createTrex();
-                        continue;
-                    } else {
-                        endGame();
-                        return;
-                    }
-                }
-            }
-
-            if (obs.x < -50) {
-                obs.el.remove();
-                obstacles.splice(i, 1);
+            // 플레이어 위치(x=40)를 지나쳐서 완전히 왼쪽으로 벗어났는데도 파괴하지 못했다면 미스(게임 오버)
+            if (obs.x < 30) {
+                endGame();
+                return;
             }
         }
 
-        for (let i = clouds.length - 1; i >= 0; i--) {
-            let cloud = clouds[i];
-            cloud.x -= cloudSpeed;
-            cloud.el.style.left = cloud.x + 'px';
-            if (cloud.x < -100) { cloud.el.remove(); clouds.splice(i, 1); }
-        }
-
-        nextSpawnDistance -= obstacleSpeed;
-        if (nextSpawnDistance <= 0 && !trex && !finalBoss) {
+        // 선인장 생성 주기 조절
+        spawnTimer++;
+        let requiredTime = Math.max(50, 110 - (score * 3));
+        if (spawnTimer >= requiredTime) {
             createObstacle();
-            nextSpawnDistance = 150 + Math.random() * 200;
+            spawnTimer = 0;
         }
-
-        if (Math.random() < 0.01) createCloud();
     }
 
     msgStart.style.display = 'flex';
