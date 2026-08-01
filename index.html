@@ -3,218 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>타이밍 돌진 파괴 게임</title>
+    <title>심플 돌진 파괴 게임</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
 
-        :root { --bg-color: #f7f7f7; --main-color: #535353; --sub-color: #747474; }
-        body.night-mode { --bg-color: #0a0e27; --main-color: #e8eaed; --sub-color: #9aa0a6; }
-
-        body { background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; user-select: none; transition: background-color 0.3s ease; -webkit-touch-callout: none; }
+        body { background-color: #f7f7f7; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; user-select: none; }
         
-        #game { position: relative; width: 600px; height: 150px; background-color: var(--bg-color); overflow: hidden; border-bottom: 2px solid var(--main-color); transition: background-color 0.3s ease, border-color 0.3s ease; touch-action: none; }
+        #game { position: relative; width: 600px; height: 150px; background-color: #f7f7f7; overflow: hidden; border-bottom: 2px solid #535353; touch-action: none; }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0px) translateY(0px); }
-            20% { transform: translateX(-6px) translateY(3px); }
-            40% { transform: translateX(6px) translateY(-3px); }
-            60% { transform: translateX(-3px) translateY(2px); }
-            80% { transform: translateX(3px) translateY(-2px); }
-        }
-        
-        #game.shake { animation: shake 0.3s ease-in-out; }
+        #score-area { position: absolute; top: 10px; right: 10px; color: #535353; font-size: 18px; font-weight: bold; z-index: 10; }
 
-        #score-area { position: absolute; top: 10px; right: 10px; color: var(--main-color); font-size: 18px; font-weight: bold; z-index: 10; }
-        #hi-score { margin-right: 15px; color: var(--sub-color); }
+        /* 판정 존 (여기에 선인장이 들어올 때 C키를 눌러야 함) */
+        #target-zone { position: absolute; left: 70px; bottom: 0; width: 45px; height: 100px; border-left: 2px dashed #ff4500; border-right: 2px dashed #ff4500; background: rgba(255, 69, 0, 0.08); z-index: 2; pointer-events: none; }
 
-        /* 타이밍 존 표시선 */
-        #timing-zone { position: absolute; left: 45px; bottom: 0; width: 35px; height: 100px; border-left: 2px dashed #ff4500; border-right: 2px dashed #ff4500; background: rgba(255, 69, 0, 0.05); z-index: 2; pointer-events: none; }
+        /* 플레이어 (공룡) */
+        #dino { position: absolute; left: 40px; bottom: 2px; width: 28px; height: 32px; background: #535353; z-index: 5; transition: transform 0.05s; }
+        #dino.dashing { transform: translateX(25px) skewX(-15deg); background: #ffaa00; }
 
-        #dino { position: absolute; left: 40px; bottom: 2px; width: 4px; height: 4px; background: transparent; z-index: 5; transition: transform 0.05s; }
-        .dashing { transform: translateX(25px) skewX(-15deg) !important; filter: drop-shadow(0 0 8px #ffaa00); }
+        /* 선인장 */
+        #cactus { position: absolute; left: 600px; bottom: 2px; width: 16px; height: 35px; background: #535353; z-index: 4; }
 
-        .stand-a { box-shadow: 36px -32px 0 var(--main-color), 40px -32px 0 var(--main-color), 44px -32px 0 var(--main-color), 36px -28px 0 var(--main-color), 40px -28px 0 var(--main-color), 36px -24px 0 var(--main-color), 36px -20px 0 var(--main-color), 32px -16px 0 var(--main-color), 36px -16px 0 var(--main-color), 28px -12px 0 var(--main-color), 32px -12px 0 var(--main-color), 12px -8px 0 var(--main-color), 16px -8px 0 var(--main-color), 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 12px -4px 0 var(--main-color), 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 24px -4px 0 var(--main-color), 28px -4px 0 var(--main-color), 4px 0px 0 var(--main-color), 8px 0px 0 var(--main-color), 12px 0px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color), 24px 0px 0 var(--main-color), 8px 4px 0 var(--main-color), 24px 4px 0 var(--main-color); }
-        .stand-b { box-shadow: 36px -32px 0 var(--main-color), 40px -32px 0 var(--main-color), 44px -32px 0 var(--main-color), 36px -28px 0 var(--main-color), 40px -28px 0 var(--main-color), 36px -24px 0 var(--main-color), 36px -20px 0 var(--main-color), 32px -16px 0 var(--main-color), 36px -16px 0 var(--main-color), 28px -12px 0 var(--main-color), 32px -12px 0 var(--main-color), 12px -8px 0 var(--main-color), 16px -8px 0 var(--main-color), 20px -8px 0 var(--main-color), 24px -8px 0 var(--main-color), 28px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 12px -4px 0 var(--main-color), 16px -4px 0 var(--main-color), 20px -4px 0 var(--main-color), 24px -4px 0 var(--main-color), 28px -4px 0 var(--main-color), 4px 0px 0 var(--main-color), 8px 0px 0 var(--main-color), 12px 0px 0 var(--main-color), 16px 0px 0 var(--main-color), 20px 0px 0 var(--main-color), 24px 0px 0 var(--main-color), 12px 4px 0 var(--main-color), 20px 4px 0 var(--main-color); }
-
-        .obstacle { position: absolute; background: transparent; z-index: 4; }
-        .cactus { bottom: 2px; width: 4px; height: 4px; box-shadow: 8px -24px 0 var(--main-color), 8px -20px 0 var(--main-color), 0px -16px 0 var(--main-color), 8px -16px 0 var(--main-color), 16px -16px 0 var(--main-color), 0px -12px 0 var(--main-color), 8px -12px 0 var(--main-color), 16px -12px 0 var(--main-color), 0px -8px 0 var(--main-color), 8px -8px 0 var(--main-color), 8px -4px 0 var(--main-color), 8px 0px 0 var(--main-color); }
-
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--main-color); font-size: 16px; font-weight: bold; background-color: var(--bg-color); z-index: 20; text-align: center; padding: 10px; }
-        .msg-gameover { display: none; }
-        .gameover-text { font-size: 24px; letter-spacing: 5px; margin-bottom: 10px; color: #ff4500; }
-        .restart-text { font-size: 14px; color: var(--sub-color); }
+        /* 오버레이 화면 */
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #535353; font-size: 15px; font-weight: bold; background-color: #f7f7f7; z-index: 20; text-align: center; padding: 10px; }
+        .gameover-text { font-size: 22px; color: #ff4500; margin-bottom: 8px; }
     </style>
 </head>
 <body>
 
 <div id="game">
-    <div id="timing-zone"></div>
-    <div id="score-area">
-        <span id="hi-score">HI 0</span>
-        <span id="score">0</span>
+    <div id="target-zone"></div>
+    <div id="score-area">SCORE: <span id="score">0</span></div>
+    <div id="dino"></div>
+    <div id="cactus"></div>
+
+    <div class="overlay" id="msg-start">
+        <p style="font-size: 18px; margin-bottom: 5px;">🎯 타이밍 돌진 게임</p>
+        <p style="color: #ff4500; margin-bottom: 10px;">선인장이 주황색 존에 들어올 때</p>
+        <p>[ C 키 ] 또는 [ 화면 터치 ]로 돌진해 파괴하세요!</p>
+        <p style="font-size: 12px; color: #888; margin-top: 15px;">[ 화면을 터치하면 시작합니다 ]</p>
     </div>
-    <div id="dino" class="stand-a"></div>
-    <div id="obstacles"></div>
-    <div class="overlay msg-start" id="msg-start">
-        <p>🎯 타이밍 돌진 파괴 게임</p>
-        <p style="font-size: 13px; margin-top: 8px; color: #ff4500;">선인장이 주황색 존(Zone)에 들어올 때</p>
-        <p style="font-size: 14px; margin-top: 3px; font-weight: bold;">[ C 키 ] 또는 [ 화면 터치 ] 로 돌진해 파괴하세요!</p>
-        <p style="font-size: 12px; margin-top: 15px; background: rgba(0,0,0,0.05); padding: 5px 10px; border-radius: 4px;">[ 화면을 터치하면 시작합니다 ]</p>
-    </div>
-    <div class="overlay msg-gameover" id="msg-gameover">
-        <p class="gameover-text">MISSED / CRASH!</p>
-        <p class="restart-text">화면을 터치하면 재시작</p>
+
+    <div class="overlay" id="msg-gameover" style="display: none;">
+        <p class="gameover-text">GAME OVER</p>
+        <p style="font-size: 13px; color: #747474;">화면을 터치하면 다시 시작합니다</p>
     </div>
 </div>
 
 <script>
-    const gameContainer = document.getElementById('game');
+    const game = document.getElementById('game');
     const dino = document.getElementById('dino');
+    const cactus = document.getElementById('cactus');
     const scoreDisplay = document.getElementById('score');
-    const hiScoreDisplay = document.getElementById('hi-score');
-    const obstaclesContainer = document.getElementById('obstacles');
     const msgStart = document.getElementById('msg-start');
     const msgGameover = document.getElementById('msg-gameover');
 
-    let isPlaying = false;
+    let state = 'START'; // START, PLAYING, GAMEOVER
     let score = 0;
-    let hiScore = 0;
-    let gameLoopInterval;
-    let spawnTimer = 0;
-    let obstacles = [];
-    let obstacleSpeed = 3.5;
-    
-    let isDashing = false;
-    let dashAnimTimeout = null;
-
-    function triggerEarthquake() {
-        gameContainer.classList.remove('shake');
-        void gameContainer.offsetWidth;
-        gameContainer.classList.add('shake');
-    }
+    let cactusX = 600;
+    let cactusSpeed = 3;
+    let animationId = null;
 
     function startGame() {
-        isPlaying = true;
+        state = 'PLAYING';
         score = 0;
-        obstacleSpeed = 3.5;
-        spawnTimer = 0;
-        obstacles = [];
-        obstaclesContainer.innerHTML = '';
-        
+        cactusX = 600;
+        cactusSpeed = 3;
+        scoreDisplay.innerText = score;
         msgStart.style.display = 'none';
         msgGameover.style.display = 'none';
-        scoreDisplay.innerText = '0';
-
-        clearInterval(gameLoopInterval);
-        gameLoopInterval = setInterval(updateGame, 1000 / 60);
+        
+        if (animationId) cancelAnimationFrame(animationId);
+        update();
     }
-
-    function smashAction() {
-        if (!isPlaying) return;
-
-        // 돌진 모션 연출
-        isDashing = true;
-        dino.classList.add('dashing');
-        clearTimeout(dashAnimTimeout);
-        dashAnimTimeout = setTimeout(() => {
-            isDashing = false;
-            dino.classList.remove('dashing');
-        }, 150);
-
-        // 타이밍 존 (x: 40 ~ 75) 안에 있는 선인장이 있는지 확인
-        let hitIndex = -1;
-        for (let i = 0; i < obstacles.length; i++) {
-            let obs = obstacles[i];
-            // 선인장의 현재 X 좌표가 타이밍 존에 정확히 걸쳐있는지 확인
-            if (obs.x >= 35 && obs.x <= 75) {
-                hitIndex = i;
-                break;
-            }
-        }
-
-        if (hitIndex !== -1) {
-            // 성공: 선인장 파괴
-            obstacles[hitIndex].el.remove();
-            obstacles.splice(hitIndex, 1);
-            score++;
-            scoreDisplay.innerText = score;
-            triggerEarthquake();
-
-            // 점수에 따라 난이도(속도) 상승
-            if (score % 5 === 0) {
-                obstacleSpeed += 0.5;
-            }
-        } else {
-            // 실패: 엉뚱한 타이밍에 누르거나 존에 없는데 누름 -> 게임 오버
-            endGame();
-        }
-    }
-
-    // 입력 이벤트 연결 (터치 및 키보드)
-    gameContainer.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        if (!isPlaying) {
-            startGame();
-        } else {
-            smashAction();
-        }
-    }, { passive: false });
-
-    window.addEventListener('keydown', function(e) {
-        if (e.code === 'KeyC' || e.key === 'c' || e.key === 'C' || e.code === 'Space') {
-            e.preventDefault();
-            if (!isPlaying) {
-                startGame();
-            } else {
-                smashAction();
-            }
-        }
-    });
 
     function endGame() {
-        isPlaying = false;
-        clearInterval(gameLoopInterval);
+        state = 'GAMEOVER';
+        cancelAnimationFrame(animationId);
         msgGameover.style.display = 'flex';
-        if (score > hiScore) {
-            hiScore = score;
-            hiScoreDisplay.innerText = 'HI ' + hiScore;
+    }
+
+    function action() {
+        if (state === 'START' || state === 'GAMEOVER') {
+            startGame();
+            return;
         }
-    }
 
-    function createObstacle() {
-        const obs = document.createElement('div');
-        obs.className = 'obstacle cactus';
-        obs.style.left = '600px';
-        obstaclesContainer.appendChild(obs);
-        obstacles.push({ el: obs, x: 600 });
-    }
+        if (state === 'PLAYING') {
+            // 돌진 모션 시각 효과
+            dino.classList.add('dashing');
+            setTimeout(() => dino.classList.remove('dashing'), 120);
 
-    function updateGame() {
-        if (!isPlaying) return;
-
-        // 선인장 이동
-        for (let i = obstacles.length - 1; i >= 0; i--) {
-            let obs = obstacles[i];
-            obs.x -= obstacleSpeed;
-            obs.el.style.left = obs.x + 'px';
-
-            // 플레이어 위치(x=40)를 지나쳐서 완전히 왼쪽으로 벗어났는데도 파괴하지 못했다면 미스(게임 오버)
-            if (obs.x < 30) {
+            // 판정 존 범위 (주황색 박스 위치: 70 ~ 115)
+            if (cactusX >= 65 && cactusX <= 120) {
+                // 성공: 선인장 리셋 및 점수 증가
+                score++;
+                scoreDisplay.innerText = score;
+                cactusX = 600;
+                cactusSpeed += 0.2; // 점점 빨라짐
+            } else {
+                // 실패: 존에 없는데 누름
                 endGame();
-                return;
             }
         }
-
-        // 선인장 생성 주기 조절
-        spawnTimer++;
-        let requiredTime = Math.max(50, 110 - (score * 3));
-        if (spawnTimer >= requiredTime) {
-            createObstacle();
-            spawnTimer = 0;
-        }
     }
 
-    msgStart.style.display = 'flex';
+    function update() {
+        if (state !== 'PLAYING') return;
+
+        // 선인장 이동
+        cactusX -= cactusSpeed;
+        cactus.style.left = cactusX + 'px';
+
+        // 선인장을 놓치고 지나친 경우 게임 오버
+        if (cactusX < 30) {
+            endGame();
+            return;
+        }
+
+        animationId = requestAnimationFrame(update);
+    }
+
+    // 이벤트 리스너 (터치 및 C키)
+    game.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        action();
+    });
+
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyC' || e.key === 'c' || e.key === 'C' || e.code === 'Space') {
+            e.preventDefault();
+            action();
+        }
+    });
 </script>
 </body>
 </html>
