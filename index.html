@@ -536,7 +536,13 @@
         const cactus = cactusList[0];
         growingCactus = cactus;
         cactus.el.classList.add('growing');
-        cactus.hitbox = { left: 2, right: 14, bottom: 0, top: 150 };
+        // 히트박스는 실제로 다 자란 뒤(애니메이션 종료 시점)에만 커지도록 함.
+        // 즉시 키우면 화면상으로는 아직 작은데 충돌 판정만 거대해져서
+        // "닿지도 않았는데 죽는" 문제가 생긴다.
+        setTimeout(() => {
+            if (cactus.eaten) return; // 다 자라기 전에 이미 먹었으면 무시
+            cactus.hitbox = { left: 2, right: 14, bottom: 0, top: 150 };
+        }, 2000);
     }
 
     // 거대해진 선인장이 사정거리 안에 들어왔는지 확인 (점프 대신 먹기가 가능한 상태)
